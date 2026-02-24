@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambridge IGCSE CS 0478 — Interactive Reference</title>
+<style>
+:root {
+  --teal: #006d77;
+  --teal-dark: #004e56;
+  --teal-pale: #e8f5f6;
+  --amber: #e9c46a;
+  --amber-dark: #c49a3c;
+  --amber-pale: #fdf8ec;
+  --green: #2a9d8f;
+  --green-pale: #e4f5f3;
+  --red: #c94040;
+  --red-pale: #fdf0f0;
+  --blue: #3a5bd6;
+  --blue-dark: #2a44a8;
+  --blue-pale: #eef1fd;
+  --grey-100: #f4f5f7;
+  --grey-200: #e8eaed;
+  --grey-400: #9aa0ab;
+  --grey-700: #3d4350;
+  --text: #1c2029;
+  --white: #ffffff;
+  --font: Arial, sans-serif;
+  --mono: 'Courier New', monospace;
+  --r: 8px;
+  --r-sm: 5px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 0 3px 12px rgba(0,0,0,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--grey-100); color: var(--text); font-size: 15px; line-height: 1.65; }
+code { font-family: var(--mono); font-size: 0.87em; background: var(--grey-200); padding: 1px 5px; border-radius: 3px; }
+strong { font-weight: 700; }
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--teal-dark);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.site-header h1 { color: white; font-size: 1.05rem; font-weight: 700; }
+.site-header p { color: rgba(255,255,255,0.55); font-size: 0.78rem; }
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.hamburger span { display: block; width: 22px; height: 2px; background: white; margin: 5px 0; transition: all 0.2s; }
+@media (max-width: 700px) {
+  .hamburger { display: block; }
+}
+
+/* ── LAYOUT ── */
+.layout { display: flex; min-height: calc(100vh - 56px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  background: var(--white);
+  border-right: 2px solid var(--grey-200);
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 16px 0 32px;
+}
+@media (max-width: 700px) {
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 16px rgba(0,0,0,0.15);
+  }
+  .sidebar.open { transform: translateX(0); }
+}
+
+.nav-group { margin-bottom: 4px; }
+.nav-group-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 12px 18px 5px;
+  display: block;
+}
+.nav-group.ps .nav-group-label { color: var(--teal); }
+.nav-group.java .nav-group-label { color: var(--blue); }
+
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 18px 9px 28px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  font-family: var(--font);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--grey-700);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.nav-item:hover { background: var(--grey-100); color: var(--teal); }
+.nav-group.ps .nav-item.active {
+  color: var(--teal);
+  background: var(--teal-pale);
+  border-left-color: var(--teal);
+}
+.nav-group.java .nav-item:hover { color: var(--blue); }
+.nav-group.java .nav-item.active {
+  color: var(--blue);
+  background: var(--blue-pale);
+  border-left-color: var(--blue);
+}
+.nav-divider { height: 1px; background: var(--grey-200); margin: 8px 16px; }
+
+/* ── CONTENT ── */
+.content { flex: 1; min-width: 0; padding: 30px 36px 72px; max-width: 860px; }
+@media (max-width: 700px) { .content { padding: 20px 16px 60px; } }
+
+/* ── SECTIONS ── */
+.section { display: none; }
+.section.active { display: block; animation: fadeUp 0.22s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── SECTION HEADER ── */
+.sec-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.badge-ps { background: var(--teal); color: white; }
+.badge-java { background: var(--blue); color: white; }
+.sec-title { font-size: 1.55rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.sec-sub { font-size: 0.84rem; color: var(--grey-400); font-weight: 600; margin-bottom: 24px; }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-radius: var(--r);
+  padding: 13px 17px;
+  margin-bottom: 16px;
+  font-size: 0.87rem;
+  line-height: 1.7;
+  border-left: 4px solid;
+}
+.c-teal  { background: var(--teal-pale);  border-color: var(--teal); }
+.c-amber { background: var(--amber-pale); border-color: var(--amber-dark); }
+.c-green { background: var(--green-pale); border-color: var(--green); }
+.c-blue  { background: var(--blue-pale);  border-color: var(--blue); }
+.c-teal  strong { color: var(--teal-dark); }
+.c-amber strong { color: var(--amber-dark); }
+.c-green strong { color: var(--green); }
+.c-blue  strong { color: var(--blue-dark); }
+
+/* ── GRID ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+@media (max-width: 580px) { .g2 { grid-template-columns: 1fr; } }
+
+/* ── CONCEPT CARDS ── */
+.cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+@media (max-width: 580px) { .cards3 { grid-template-columns: 1fr; } }
+.cc {
+  background: var(--white);
+  border: 1px solid var(--grey-200);
+  border-top: 3px solid var(--teal);
+  border-radius: var(--r);
+  padding: 14px 13px;
+  box-shadow: var(--shadow);
+}
+.cc h4 { font-size: 0.87rem; font-weight: 700; color: var(--teal); margin-bottom: 5px; }
+.cc p  { font-size: 0.8rem; color: var(--grey-700); line-height: 1.6; }
+
+/* ── CODE CARD ── */
+.code-card { border-radius: var(--r); overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow-md); }
+.code-head {
+  background: var(--teal-dark);
+  color: white;
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.code-head h3 { font-size: 0.88rem; font-weight: 700; }
+.code-head span { font-size: 0.69rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.06em; }
+.code-card pre {
+  margin: 0;
+  padding: 18px 20px;
+  background: #0d1b2a;
+  color: #cdd9e5;
+  font-family: var(--mono);
+  font-size: 0.79rem;
+  line-height: 1.75;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 4;
+}
+
+/* ── ARRAY DIAGRAM ── */
+.arr-grid { display: flex; flex-direction: column; gap: 5px; margin: 8px 0 12px; }
+.arr-row  { display: flex; gap: 4px; align-items: center; }
+.arr-row-label { font-size: 0.7rem; color: var(--grey-400); font-family: var(--mono); width: 55px; flex-shrink: 0; }
+.arr-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.arr-idx  { font-size: 0.66rem; color: var(--grey-400); font-family: var(--mono); }
+.arr-val  { width: 42px; height: 36px; border: 2px solid var(--grey-200); border-radius: 4px; background: var(--white); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.85rem; }
+
+/* ── DIVIDER ── */
+.hr { border: none; border-top: 2px solid var(--grey-200); margin: 24px 0; }
+
+/* ── PARSONS ── */
+.parsons-box {
+  background: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.widget-title { font-size: 0.98rem; font-weight: 700; color: var(--teal); margin-bottom: 3px; }
+.widget-sub   { font-size: 0.81rem; color: var(--grey-400); margin-bottom: 13px; }
+.parsons-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 580px) { .parsons-wrap { grid-template-columns: 1fr; } }
+.parsons-zone {
+  border: 2px dashed var(--grey-200);
+  border-radius: var(--r);
+  background: var(--grey-100);
+  min-height: 180px;
+  padding: 9px;
+  transition: border-color 0.18s, background 0.18s;
+}
+.parsons-zone.drop-active { border-color: var(--teal); background: var(--teal-pale); }
+.parsons-zone h4 {
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--grey-400);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--grey-200);
+}
+.parsons-item {
+  background: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-left: 4px solid var(--teal);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  margin-bottom: 5px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: grab;
+  user-select: none;
+  white-space: pre;
+  transition: box-shadow 0.12s, opacity 0.12s;
+  box-shadow: var(--shadow);
+}
+.parsons-item:hover   { box-shadow: 0 3px 10px rgba(0,109,119,0.15); }
+.parsons-item:active  { cursor: grabbing; }
+.parsons-item.dragging  { opacity: 0.25; }
+.parsons-item.drag-over { border-top: 2px solid var(--teal); }
+.parsons-item.correct   { border-left-color: var(--green); background: var(--green-pale); }
+.parsons-item.incorrect { border-left-color: var(--red);   background: var(--red-pale); }
+.parsons-btns { display: flex; gap: 8px; margin-top: 11px; flex-wrap: wrap; }
+.parsons-fb {
+  border-radius: var(--r-sm);
+  padding: 9px 13px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  display: none;
+  margin-top: 9px;
+}
+.parsons-fb.show { display: block; }
+.parsons-fb.pass { background: var(--green-pale); color: var(--green); border: 1.5px solid var(--green); }
+.parsons-fb.fail { background: var(--red-pale);   color: var(--red);   border: 1.5px solid var(--red); }
+
+/* ── QUIZ ── */
+.quiz-box {
+  background: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.quiz-list { display: flex; flex-direction: column; gap: 14px; }
+.quiz-card { border: 1.5px solid var(--grey-200); border-radius: var(--r); overflow: hidden; }
+.quiz-q {
+  padding: 12px 15px;
+  background: var(--grey-100);
+  font-weight: 700;
+  font-size: 0.89rem;
+  border-bottom: 1.5px solid var(--grey-200);
+  line-height: 1.5;
+}
+.qnum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px; height: 23px;
+  background: var(--teal);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin-right: 8px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.quiz-opts { padding: 11px 15px; display: flex; flex-direction: column; gap: 6px; }
+.quiz-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 11px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  background: var(--white);
+  transition: all 0.12s;
+}
+.quiz-opt:hover { border-color: var(--teal); background: var(--teal-pale); }
+.quiz-opt input { flex-shrink: 0; margin-top: 2px; accent-color: var(--teal); }
+.quiz-opt.opt-correct { background: var(--green-pale); border-color: var(--green); }
+.quiz-opt.opt-wrong   { background: var(--red-pale);   border-color: var(--red); }
+.quiz-exp { padding: 8px 15px 13px; font-size: 0.81rem; line-height: 1.55; display: none; }
+.quiz-exp.show    { display: block; }
+.quiz-exp.correct { color: #1b6e40; }
+.quiz-exp.wrong   { color: var(--red); }
+.quiz-btns  { display: flex; gap: 8px; margin-top: 13px; align-items: center; flex-wrap: wrap; }
+.quiz-score { font-weight: 700; font-size: 0.9rem; margin-left: auto; }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 0.81rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-teal    { background: var(--teal);    color: white; }
+.btn-teal:hover    { background: var(--teal-dark); }
+.btn-outline { background: white; color: var(--teal); border: 2px solid var(--teal); }
+.btn-outline:hover { background: var(--teal-pale); }
+.btn-ghost   { background: var(--grey-100); color: var(--grey-700); border: 1.5px solid var(--grey-200); }
+.btn-ghost:hover   { background: var(--grey-200); }
+
+/* ── FOOTER ── */
+footer { background: var(--teal-dark); color: rgba(255,255,255,0.5); text-align: center; padding: 18px; font-size: 0.76rem; font-weight: 600; }
+footer strong { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div>
+    <h1>Cambridge IGCSE Computer Science 0478</h1>
+    <p>1D and 2D Arrays - Cambridge IGCSE Computer Science 0478</p>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-group ps">
+      <span class="nav-group-label">Pseudocode</span>
+      <button class="nav-item active" onclick="go('ps-1d')">1D Arrays</button>
+      <button class="nav-item" onclick="go('ps-2d')">2D Arrays</button>
+      <button class="nav-item" onclick="go('ps-linear')">Linear Search</button>
+      <button class="nav-item" onclick="go('ps-bubble')">Bubble Sort</button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-group java">
+      <span class="nav-group-label">Java</span>
+      <button class="nav-item" onclick="go('java-1d')">1D Arrays</button>
+      <button class="nav-item" onclick="go('java-2d')">2D Arrays</button>
+      <button class="nav-item" onclick="go('java-linear')">Linear Search</button>
+      <button class="nav-item" onclick="go('java-bubble')">Bubble Sort</button>
+    </div>
+  </nav>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <main class="content">
+
+    <!-- ════════════════════════════════════════════
+         PSEUDOCODE — 1D ARRAYS
+    ════════════════════════════════════════════ -->
+    <section class="section active" id="ps-1d">
+      <span class="sec-badge badge-ps">Pseudocode</span>
+      <h2 class="sec-title">1D Arrays</h2>
+      <p class="sec-sub">Declaring, accessing, and traversing one-dimensional arrays in Cambridge pseudocode.</p>
+
+      <div class="callout c-teal">
+        <strong>What is a 1D array?</strong> An array is a fixed-size collection of values of the same data type, stored under one variable name. Each element is accessed by its index (position number). In Cambridge pseudocode you declare the lower and upper bounds explicitly.
+      </div>
+
+      <div class="g2">
+        <div class="callout c-teal" style="margin-bottom:0">
+          <strong>Declaration syntax</strong><br>
+          <code>DECLARE id : ARRAY[lower:upper] OF DataType</code><br><br>
+          Example — 5 integers, indexed 1 to 5:<br>
+          <code>DECLARE Scores : ARRAY[1:5] OF INTEGER</code>
+        </div>
+        <div class="callout c-teal" style="margin-bottom:0">
+          <strong>Assigning and reading elements</strong><br>
+          Use the index in square brackets:<br>
+          <code>Scores[1] ← 75</code> &nbsp;&nbsp;(assign)<br>
+          <code>OUTPUT Scores[1]</code> &nbsp;&nbsp;(read)<br><br>
+          Valid indices run from the lower bound to the upper bound.
+        </div>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>Traversing with a FOR loop:</strong> A FOR loop is ideal when you want to process every element. Set the loop variable from the lower bound to the upper bound and use it as the index inside the loop body.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>1D Integer Array — declare, fill, sum</h3><span>Cambridge Pseudocode</span></div>
+        <pre>DECLARE Scores : ARRAY[1:5] OF INTEGER
+DECLARE Total : INTEGER
+DECLARE i : INTEGER
+
+Scores[1] ← 75
+Scores[2] ← 82
+Scores[3] ← 91
+Scores[4] ← 67
+Scores[5] ← 88
+
+Total ← 0
+FOR i ← 1 TO 5
+    Total ← Total + Scores[i]
+NEXT i
+
+OUTPUT "Total: ", Total
+OUTPUT "Average: ", Total / 5</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>1D String Array — declare, fill, output all</h3><span>Cambridge Pseudocode</span></div>
+        <pre>DECLARE Names : ARRAY[1:4] OF STRING
+DECLARE i : INTEGER
+
+Names[1] ← "Alice"
+Names[2] ← "Ben"
+Names[3] ← "Zara"
+Names[4] ← "Omar"
+
+FOR i ← 1 TO 4
+    OUTPUT Names[i]
+NEXT i</pre>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the code blocks in the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-ps-1d"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-ps-1d"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('ps-1d')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('ps-1d')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('ps-1d')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-ps-1d"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of 1D arrays in pseudocode.</div>
+        <div class="quiz-list" id="ql-ps-1d"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('ps-1d')">Check Answers</button>
+          <div class="quiz-score" id="qs-ps-1d" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         PSEUDOCODE — 2D ARRAYS
+    ════════════════════════════════════════════ -->
+    <section class="section" id="ps-2d">
+      <span class="sec-badge badge-ps">Pseudocode</span>
+      <h2 class="sec-title">2D Arrays</h2>
+      <p class="sec-sub">Declaring and traversing two-dimensional arrays (grids) in Cambridge pseudocode.</p>
+
+      <div class="callout c-teal">
+        <strong>What is a 2D array?</strong> A 2D array is a grid of values with rows and columns. Each element needs two indices to locate it — a row number and a column number. Think of a timetable or a spreadsheet.
+      </div>
+
+      <div class="g2">
+        <div class="callout c-teal" style="margin-bottom:0">
+          <strong>Declaration syntax</strong><br>
+          <code>DECLARE id : ARRAY[r1:r2, c1:c2] OF Type</code><br><br>
+          3 rows, 4 columns of integers:<br>
+          <code>DECLARE Grid : ARRAY[1:3, 1:4] OF INTEGER</code>
+        </div>
+        <div class="callout c-teal" style="margin-bottom:0">
+          <strong>Accessing elements</strong><br>
+          Two indices, separated by a comma:<br>
+          <code>Grid[row, col]</code><br><br>
+          <code>Grid[2, 3] ← 42</code> &nbsp;(assign)<br>
+          <code>OUTPUT Grid[2, 3]</code> &nbsp;(read row 2, col 3)
+        </div>
+      </div>
+
+      <div style="background:var(--white); border:1.5px solid var(--grey-200); border-radius:var(--r); padding:14px 16px; margin-bottom:16px;">
+        <div style="font-size:0.82rem; font-weight:700; color:var(--teal); margin-bottom:10px;">Visual — ARRAY[1:2, 1:3] (2 rows, 3 columns)</div>
+        <div class="arr-grid">
+          <div class="arr-row">
+            <span class="arr-row-label">Row 1:</span>
+            <div class="arr-cell"><div class="arr-idx">[1,1]</div><div class="arr-val">10</div></div>
+            <div class="arr-cell"><div class="arr-idx">[1,2]</div><div class="arr-val">25</div></div>
+            <div class="arr-cell"><div class="arr-idx">[1,3]</div><div class="arr-val">7</div></div>
+          </div>
+          <div class="arr-row">
+            <span class="arr-row-label">Row 2:</span>
+            <div class="arr-cell"><div class="arr-idx">[2,1]</div><div class="arr-val">42</div></div>
+            <div class="arr-cell"><div class="arr-idx">[2,2]</div><div class="arr-val">18</div></div>
+            <div class="arr-cell"><div class="arr-idx">[2,3]</div><div class="arr-val">9</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>Two nested FOR loops to traverse:</strong> The outer loop steps through rows; the inner loop steps through columns within each row. You need both to visit every element.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>2D Integer Array — declare, assign, traverse</h3><span>Cambridge Pseudocode</span></div>
+        <pre>DECLARE Grid : ARRAY[1:3, 1:4] OF INTEGER
+DECLARE Row : INTEGER
+DECLARE Col : INTEGER
+
+Grid[1, 1] ← 5
+Grid[2, 3] ← 42
+
+FOR Row ← 1 TO 3
+    FOR Col ← 1 TO 4
+        OUTPUT Grid[Row, Col]
+    NEXT Col
+NEXT Row</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>2D String Array — timetable example</h3><span>Cambridge Pseudocode</span></div>
+        <pre>DECLARE Timetable : ARRAY[1:5, 1:6] OF STRING
+DECLARE Period : INTEGER
+
+Timetable[1, 1] ← "Maths"
+Timetable[1, 2] ← "English"
+Timetable[1, 3] ← "Science"
+
+// Output Monday (row 1)
+FOR Period ← 1 TO 6
+    OUTPUT Timetable[1, Period]
+NEXT Period</pre>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the 2D traversal into the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-ps-2d"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-ps-2d"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('ps-2d')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('ps-2d')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('ps-2d')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-ps-2d"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of 2D arrays in pseudocode.</div>
+        <div class="quiz-list" id="ql-ps-2d"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('ps-2d')">Check Answers</button>
+          <div class="quiz-score" id="qs-ps-2d" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         PSEUDOCODE — LINEAR SEARCH
+    ════════════════════════════════════════════ -->
+    <section class="section" id="ps-linear">
+      <span class="sec-badge badge-ps">Pseudocode</span>
+      <h2 class="sec-title">Linear Search</h2>
+      <p class="sec-sub">Find First and Count All — two approaches in Cambridge pseudocode.</p>
+
+      <div class="callout c-teal">
+        <strong>What is linear search?</strong> Linear search checks each element one by one from the start until it finds the target or runs out of elements. There is no requirement for the array to be sorted.
+      </div>
+
+      <div class="g2">
+        <div class="callout c-green" style="margin-bottom:0">
+          <strong>Find First</strong><br>
+          Stop as soon as a match is found. Record the position and exit the loop. Returns the index of the first match, or −1 if not found.
+        </div>
+        <div class="callout c-blue" style="margin-bottom:0">
+          <strong>Count All</strong><br>
+          Never stop early — always check every element. Count each match found. Returns the total number of occurrences.
+        </div>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>No BREAK in Cambridge pseudocode:</strong> There is no BREAK statement to exit a loop early. For Find First, use a WHILE loop with the condition <code>i &lt;= n AND Found = FALSE</code>. The loop stops automatically the moment Found becomes TRUE.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Find First — 1D Integer Array</h3><span>WHILE loop + Found flag</span></div>
+        <pre>DECLARE Arr : ARRAY[1:5] OF INTEGER
+DECLARE Target : INTEGER
+DECLARE Found : BOOLEAN
+DECLARE Position : INTEGER
+DECLARE i : INTEGER
+
+Target ← 23
+Found ← FALSE
+Position ← -1
+i ← 1
+
+WHILE i <= 5 AND Found = FALSE DO
+    IF Arr[i] = Target THEN
+        Found ← TRUE
+        Position ← i
+    ENDIF
+    i ← i + 1
+ENDWHILE
+
+IF Found = TRUE THEN
+    OUTPUT "Found at position ", Position
+ELSE
+    OUTPUT Target, " is not in the array"
+ENDIF</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Find First — 1D String Array</h3><span>= operator works for STRING comparisons</span></div>
+        <pre>DECLARE Names : ARRAY[1:5] OF STRING
+DECLARE Target : STRING
+DECLARE Found : BOOLEAN
+DECLARE Position : INTEGER
+DECLARE i : INTEGER
+
+Target ← "Zara"
+Found ← FALSE
+Position ← -1
+i ← 1
+
+WHILE i <= 5 AND Found = FALSE DO
+    IF Names[i] = Target THEN
+        Found ← TRUE
+        Position ← i
+    ENDIF
+    i ← i + 1
+ENDWHILE
+
+IF Found = TRUE THEN
+    OUTPUT "Found at position ", Position
+ELSE
+    OUTPUT Target, " is not in the array"
+ENDIF</pre>
+      </div>
+
+      <div class="callout c-teal">
+        <strong>String comparison in pseudocode:</strong> Use <code>=</code> to compare STRING values — the same operator used for integers. No special method or function is needed.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Count All — 1D Integer Array</h3><span>FOR loop — visits every element</span></div>
+        <pre>DECLARE Scores : ARRAY[1:7] OF INTEGER
+DECLARE Target : INTEGER
+DECLARE Count : INTEGER
+DECLARE i : INTEGER
+
+Target ← 89
+Count ← 0
+
+FOR i ← 1 TO 7
+    IF Scores[i] = Target THEN
+        Count ← Count + 1
+    ENDIF
+NEXT i
+
+OUTPUT Target, " appears ", Count, " time(s)"</pre>
+      </div>
+
+      <div class="callout c-green">
+        <strong>Why FOR for Count All?</strong> A Count All search must visit every element — stopping early would miss matches later in the array. A FOR loop is ideal because we know exactly how many iterations are needed: one per element.
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the Find First search into the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-ps-linear"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-ps-linear"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('ps-linear')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('ps-linear')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('ps-linear')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-ps-linear"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of linear search in pseudocode.</div>
+        <div class="quiz-list" id="ql-ps-linear"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('ps-linear')">Check Answers</button>
+          <div class="quiz-score" id="qs-ps-linear" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         PSEUDOCODE — BUBBLE SORT
+    ════════════════════════════════════════════ -->
+    <section class="section" id="ps-bubble">
+      <span class="sec-badge badge-ps">Pseudocode</span>
+      <h2 class="sec-title">Bubble Sort</h2>
+      <p class="sec-sub">Sorting an array by repeatedly comparing and swapping adjacent elements.</p>
+
+      <div class="callout c-teal">
+        <strong>How bubble sort works:</strong> On each pass through the array, every adjacent pair is compared. If the left element is greater than the right, they are swapped. After each pass, the largest unsorted element has "bubbled up" to its correct position at the end. Passes continue until no swaps occur or n−1 passes have been completed.
+      </div>
+
+      <div class="cards3">
+        <div class="cc"><h4>Pass 1</h4><p>Compare arr[1] with arr[2], then arr[2] with arr[3], and so on. The largest value reaches its final position at arr[n].</p></div>
+        <div class="cc"><h4>Pass 2</h4><p>Repeat, but stop at arr[n−1] — the last element is already correct. The second-largest reaches arr[n−1].</p></div>
+        <div class="cc"><h4>After n−1 passes</h4><p>All elements are in their correct positions. An n-element array needs at most n−1 passes.</p></div>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>The swap — why you need Temp:</strong> To swap Arr[i] and Arr[i+1], you must save one value first. Without Temp, writing <code>Arr[i] ← Arr[i+1]</code> destroys the original value of Arr[i] before you can move it. The three steps are: save → overwrite → restore.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Bubble Sort — Basic (unoptimised)</h3><span>Nested FOR loops</span></div>
+        <pre>DECLARE Arr : ARRAY[1:6] OF INTEGER
+DECLARE Temp : INTEGER
+DECLARE Pass : INTEGER
+DECLARE i : INTEGER
+
+Arr[1] ← 64
+Arr[2] ← 25
+Arr[3] ← 12
+Arr[4] ← 22
+Arr[5] ← 11
+Arr[6] ← 90
+
+FOR Pass ← 1 TO 5
+    FOR i ← 1 TO 6 - Pass
+        IF Arr[i] > Arr[i + 1] THEN
+            Temp ← Arr[i]
+            Arr[i] ← Arr[i + 1]
+            Arr[i + 1] ← Temp
+        ENDIF
+    NEXT i
+NEXT Pass</pre>
+      </div>
+
+      <div class="callout c-green">
+        <strong>Optimised version — early exit:</strong> If a complete pass produces no swaps, the array is already sorted and further passes are pointless. Because pseudocode has no BREAK, we use a WHILE loop for the outer loop with a Swapped flag in the condition. If Swapped remains FALSE after a pass, the WHILE condition fails and sorting stops.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Bubble Sort — Optimised (early exit)</h3><span>WHILE outer loop + Swapped flag</span></div>
+        <pre>DECLARE Arr : ARRAY[1:6] OF INTEGER
+DECLARE Temp : INTEGER
+DECLARE Pass : INTEGER
+DECLARE Swapped : BOOLEAN
+DECLARE i : INTEGER
+
+Pass ← 1
+Swapped ← TRUE
+
+WHILE Pass <= 5 AND Swapped = TRUE DO
+    Swapped ← FALSE
+    FOR i ← 1 TO 6 - Pass
+        IF Arr[i] > Arr[i + 1] THEN
+            Temp ← Arr[i]
+            Arr[i] ← Arr[i + 1]
+            Arr[i + 1] ← Temp
+            Swapped ← TRUE
+        ENDIF
+    NEXT i
+    Pass ← Pass + 1
+ENDWHILE</pre>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the core bubble sort loops into the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-ps-bubble"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-ps-bubble"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('ps-bubble')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('ps-bubble')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('ps-bubble')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-ps-bubble"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of bubble sort in pseudocode.</div>
+        <div class="quiz-list" id="ql-ps-bubble"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('ps-bubble')">Check Answers</button>
+          <div class="quiz-score" id="qs-ps-bubble" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         JAVA — 1D ARRAYS
+    ════════════════════════════════════════════ -->
+    <section class="section" id="java-1d">
+      <span class="sec-badge badge-java">Java</span>
+      <h2 class="sec-title">1D Arrays</h2>
+      <p class="sec-sub">Declaring, accessing, and traversing one-dimensional arrays in Java.</p>
+
+      <div class="callout c-blue">
+        <strong>Arrays in Java</strong> are fixed-size collections of elements of the same type. They are <em>zero-indexed</em> — the first element is at index 0, and the last is at index <code>arr.length - 1</code>. The square bracket notation <code>int[]</code> declares an integer array type.
+      </div>
+
+      <div class="g2">
+        <div class="callout c-blue" style="margin-bottom:0">
+          <strong>Declaring and initialising</strong><br>
+          <code>int[] arr = new int[5];</code><br>
+          Creates 5 elements, all 0.<br><br>
+          <code>int[] arr = {10, 20, 30, 40, 50};</code><br>
+          Creates and fills in one step.<br><br>
+          <code>String[] names = {"Alice", "Ben"};</code>
+        </div>
+        <div class="callout c-blue" style="margin-bottom:0">
+          <strong>Accessing and modifying</strong><br>
+          First element: <code>arr[0]</code><br>
+          Last element: <code>arr[arr.length - 1]</code><br><br>
+          Read: <code>System.out.println(arr[2]);</code><br>
+          Write: <code>arr[2] = 99;</code>
+        </div>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>The .length property:</strong> <code>arr.length</code> (no parentheses) gives the number of elements in the array. A 5-element array has <code>arr.length == 5</code> and valid indices 0 to 4. If you access <code>arr[5]</code> on a 5-element array, Java throws an <code>ArrayIndexOutOfBoundsException</code>.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>1D Integer Array — declare, fill, sum, average</h3><span>Java</span></div>
+        <pre>int[] scores = {75, 82, 91, 67, 88};
+int total = 0;
+
+for (int i = 0; i < scores.length; i++) {
+    total = total + scores[i];
+}
+
+System.out.println("Total: " + total);
+System.out.println("Average: " + (total / scores.length));</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>1D String Array — declare and output all</h3><span>Java</span></div>
+        <pre>String[] names = {"Alice", "Ben", "Zara", "Omar"};
+
+for (int i = 0; i < names.length; i++) {
+    System.out.println(names[i]);
+}</pre>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the code blocks in the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-java-1d"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-java-1d"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('java-1d')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('java-1d')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('java-1d')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-java-1d"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of 1D arrays in Java.</div>
+        <div class="quiz-list" id="ql-java-1d"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('java-1d')">Check Answers</button>
+          <div class="quiz-score" id="qs-java-1d" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         JAVA — 2D ARRAYS
+    ════════════════════════════════════════════ -->
+    <section class="section" id="java-2d">
+      <span class="sec-badge badge-java">Java</span>
+      <h2 class="sec-title">2D Arrays</h2>
+      <p class="sec-sub">Declaring and traversing two-dimensional arrays in Java.</p>
+
+      <div class="callout c-blue">
+        <strong>2D arrays in Java</strong> are arrays of arrays. The type is written with double brackets: <code>int[][]</code>. Both rows and columns are zero-indexed. Elements are accessed with two separate index brackets: <code>grid[row][col]</code>.
+      </div>
+
+      <div class="g2">
+        <div class="callout c-blue" style="margin-bottom:0">
+          <strong>Declaring and initialising</strong><br>
+          <code>int[][] grid = new int[3][4];</code><br>
+          3 rows, 4 columns, all zeros.<br><br>
+          <code>int[][] t = {{1,2,3},{4,5,6}};</code><br>
+          2 rows, 3 columns, filled inline.
+        </div>
+        <div class="callout c-blue" style="margin-bottom:0">
+          <strong>Accessing elements</strong><br>
+          <code>grid[0][0]</code> — top-left corner<br>
+          <code>grid[2][3]</code> — row 2, column 3<br><br>
+          Assign: <code>grid[1][2] = 99;</code><br>
+          Read: <code>System.out.println(grid[1][2]);</code>
+        </div>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>grid.length vs grid[row].length:</strong><br>
+        <code>grid.length</code> → number of <em>rows</em>.<br>
+        <code>grid[0].length</code> → number of <em>columns in row 0</em>.<br>
+        Always use <code>grid[row].length</code> in the inner loop — it correctly handles the column count for each row.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>2D Integer Array — declare, fill, traverse</h3><span>Java</span></div>
+        <pre>int[][] grid = {
+    {1, 2, 3, 4},
+    {5, 6, 7, 8},
+    {9, 10, 11, 12}
+};
+
+for (int row = 0; row < grid.length; row++) {
+    for (int col = 0; col < grid[row].length; col++) {
+        System.out.print(grid[row][col] + " ");
+    }
+    System.out.println();
+}</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>2D String Array — timetable example</h3><span>Java</span></div>
+        <pre>String[][] timetable = {
+    {"Maths",   "English", "Science"},
+    {"History", "Art",     "PE"},
+    {"French",  "Maths",   "English"}
+};
+
+// Print all of row 0 (Monday)
+for (int col = 0; col < timetable[0].length; col++) {
+    System.out.println(timetable[0][col]);
+}</pre>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the 2D array traversal into the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-java-2d"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-java-2d"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('java-2d')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('java-2d')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('java-2d')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-java-2d"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of 2D arrays in Java.</div>
+        <div class="quiz-list" id="ql-java-2d"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('java-2d')">Check Answers</button>
+          <div class="quiz-score" id="qs-java-2d" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         JAVA — LINEAR SEARCH
+    ════════════════════════════════════════════ -->
+    <section class="section" id="java-linear">
+      <span class="sec-badge badge-java">Java</span>
+      <h2 class="sec-title">Linear Search</h2>
+      <p class="sec-sub">Find First and Count All — two approaches in Java.</p>
+
+      <div class="callout c-blue">
+        <strong>Linear search in Java</strong> works the same way as in pseudocode, but Java has a <code>break</code> statement that exits a loop immediately. This makes the Find First approach simpler — we use a <code>for</code> loop and break the moment we find the target, without needing a <code>found</code> flag to control the loop condition.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Find First — 1D Integer Array</h3><span>for loop + break</span></div>
+        <pre>int[] arr = {45, 12, 23, 7, 91, 23};
+int target = 23;
+int position = -1;
+
+for (int i = 0; i < arr.length; i++) {
+    if (arr[i] == target) {
+        position = i;
+        break;
+    }
+}
+
+if (position != -1) {
+    System.out.println("Found at index " + position);
+} else {
+    System.out.println(target + " is not in the array");
+}</pre>
+      </div>
+
+      <div class="callout c-amber">
+        <strong>String comparison — always use .equals():</strong> For integers, use <code>==</code>. For Strings, you <em>must</em> use <code>.equals()</code>. The <code>==</code> operator checks whether two variables point to the same object in memory, not whether the strings contain the same characters. Using <code>==</code> on Strings can silently give the wrong answer.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Find First — 1D String Array</h3><span>for loop + break + .equals()</span></div>
+        <pre>String[] names = {"Alice", "Ben", "Zara", "Omar", "Zara"};
+String target = "Zara";
+int position = -1;
+
+for (int i = 0; i < names.length; i++) {
+    if (names[i].equals(target)) {
+        position = i;
+        break;
+    }
+}
+
+if (position != -1) {
+    System.out.println("Found at index " + position);
+} else {
+    System.out.println(target + " is not in the array");
+}</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Count All — 1D Integer Array</h3><span>for loop — no break</span></div>
+        <pre>int[] scores = {3, 7, 3, 9, 3};
+int target = 3;
+int count = 0;
+
+for (int i = 0; i < scores.length; i++) {
+    if (scores[i] == target) {
+        count++;
+    }
+}
+
+System.out.println(target + " appears " + count + " time(s)");</pre>
+      </div>
+
+      <div class="callout c-green">
+        <strong>Count All — never use break:</strong> Adding a break would stop at the first match and give a count of 1 at most, missing all further occurrences. The loop must always run to completion.
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the Find First search into the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-java-linear"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-java-linear"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('java-linear')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('java-linear')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('java-linear')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-java-linear"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of linear search in Java.</div>
+        <div class="quiz-list" id="ql-java-linear"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('java-linear')">Check Answers</button>
+          <div class="quiz-score" id="qs-java-linear" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         JAVA — BUBBLE SORT
+    ════════════════════════════════════════════ -->
+    <section class="section" id="java-bubble">
+      <span class="sec-badge badge-java">Java</span>
+      <h2 class="sec-title">Bubble Sort</h2>
+      <p class="sec-sub">Sorting an array by comparing and swapping adjacent elements in Java.</p>
+
+      <div class="callout c-blue">
+        <strong>Bubble sort in Java</strong> follows the same logic as the pseudocode version. The key differences: Java uses <code>arr.length</code> to control the loop bounds, uses <code>int temp</code> for the swap variable, and — unlike pseudocode — Java has a <code>break</code> statement, which makes the optimised version cleaner.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Bubble Sort — Basic (unoptimised)</h3><span>Nested for loops</span></div>
+        <pre>int[] arr = {64, 25, 12, 22, 11, 90};
+int temp;
+
+for (int pass = 0; pass < arr.length - 1; pass++) {
+    for (int i = 0; i < arr.length - 1 - pass; i++) {
+        if (arr[i] > arr[i + 1]) {
+            temp = arr[i];
+            arr[i] = arr[i + 1];
+            arr[i + 1] = temp;
+        }
+    }
+}</pre>
+      </div>
+
+      <div class="callout c-green">
+        <strong>Optimised version — early exit with break:</strong> If a complete pass occurs with no swaps, the array is already sorted. We use a boolean <code>swapped</code> flag. If it remains <code>false</code> after the inner loop, <code>break</code> exits the outer loop immediately. This is simpler than the pseudocode equivalent, which required a WHILE condition trick.
+      </div>
+
+      <div class="code-card">
+        <div class="code-head"><h3>Bubble Sort — Optimised (early exit)</h3><span>boolean swapped flag + break</span></div>
+        <pre>int[] arr = {64, 25, 12, 22, 11, 90};
+int temp;
+boolean swapped;
+
+for (int pass = 0; pass < arr.length - 1; pass++) {
+    swapped = false;
+    for (int i = 0; i < arr.length - 1 - pass; i++) {
+        if (arr[i] > arr[i + 1]) {
+            temp = arr[i];
+            arr[i] = arr[i + 1];
+            arr[i + 1] = temp;
+            swapped = true;
+        }
+    }
+    if (!swapped) {
+        break;
+    }
+}</pre>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="parsons-box">
+        <div class="widget-title">🧩 Parson's Problem</div>
+        <div class="widget-sub">Arrange the core bubble sort into the correct order.</div>
+        <div class="parsons-wrap">
+          <div class="parsons-zone" id="bank-java-bubble"><h4>Code Bank</h4></div>
+          <div class="parsons-zone drop-active" id="answer-java-bubble"><h4>Your Answer</h4></div>
+        </div>
+        <div class="parsons-btns">
+          <button class="btn btn-teal"    onclick="checkP('java-bubble')">Check</button>
+          <button class="btn btn-outline" onclick="resetP('java-bubble')">Reset</button>
+          <button class="btn btn-ghost"   onclick="revealP('java-bubble')">Reveal</button>
+        </div>
+        <div class="parsons-fb" id="pfb-java-bubble"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="widget-title">✏️ Quick Quiz</div>
+        <div class="widget-sub">3 questions — check your understanding of bubble sort in Java.</div>
+        <div class="quiz-list" id="ql-java-bubble"></div>
+        <div class="quiz-btns">
+          <button class="btn btn-teal" onclick="submitQ('java-bubble')">Check Answers</button>
+          <div class="quiz-score" id="qs-java-bubble" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <strong>Cambridge IGCSE Computer Science 0478</strong> — Interactive Reference — &copy; Crimson Global Academy 2026
+</footer>
+
+<script>
+// ═══ NAVIGATION ═══
+const ALL_IDS = ['ps-1d','ps-2d','ps-linear','ps-bubble','java-1d','java-2d','java-linear','java-bubble'];
+
+function go(id) {
+  ALL_IDS.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.classList.toggle('active', s === id);
+  });
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    const oc = btn.getAttribute('onclick') || '';
+    btn.classList.toggle('active', oc.includes("'" + id + "'"));
+  });
+  buildP(id);
+  buildQ(id);
+  window.scrollTo(0, 0);
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ═══ PARSONS DATA ═══
+const pData = {
+  'ps-1d': [
+    'DECLARE Nums : ARRAY[1:4] OF INTEGER',
+    'Nums[1] \u2190 10',
+    'Nums[2] \u2190 20',
+    'Nums[3] \u2190 30',
+    'Nums[4] \u2190 40',
+    'FOR i \u2190 1 TO 4',
+    '    OUTPUT Nums[i]',
+    'NEXT i'
+  ],
+  'ps-2d': [
+    'FOR Row \u2190 1 TO 2',
+    '    FOR Col \u2190 1 TO 3',
+    '        OUTPUT Grid[Row, Col]',
+    '    NEXT Col',
+    'NEXT Row'
+  ],
+  'ps-linear': [
+    'Found \u2190 FALSE',
+    'Position \u2190 -1',
+    'i \u2190 1',
+    'WHILE i <= 5 AND Found = FALSE DO',
+    '    IF Arr[i] = Target THEN',
+    '        Found \u2190 TRUE',
+    '        Position \u2190 i',
+    '    ENDIF',
+    '    i \u2190 i + 1',
+    'ENDWHILE',
+    'IF Found = TRUE THEN',
+    '    OUTPUT "Found at ", Position',
+    'ELSE',
+    '    OUTPUT "Not found"',
+    'ENDIF'
+  ],
+  'ps-bubble': [
+    'FOR Pass \u2190 1 TO n - 1',
+    '    FOR i \u2190 1 TO n - Pass',
+    '        IF Arr[i] > Arr[i + 1] THEN',
+    '            Temp \u2190 Arr[i]',
+    '            Arr[i] \u2190 Arr[i + 1]',
+    '            Arr[i + 1] \u2190 Temp',
+    '        ENDIF',
+    '    NEXT i',
+    'NEXT Pass'
+  ],
+  'java-1d': [
+    'int[] scores = {75, 82, 91, 67, 88};',
+    'int total = 0;',
+    'for (int i = 0; i < scores.length; i++) {',
+    '    total = total + scores[i];',
+    '}',
+    'System.out.println("Total: " + total);'
+  ],
+  'java-2d': [
+    'for (int row = 0; row < grid.length; row++) {',
+    '    for (int col = 0; col < grid[row].length; col++) {',
+    '        System.out.print(grid[row][col] + " ");',
+    '    }',
+    '    System.out.println();',
+    '}'
+  ],
+  'java-linear': [
+    'int position = -1;',
+    'for (int i = 0; i < arr.length; i++) {',
+    '    if (arr[i] == target) {',
+    '        position = i;',
+    '        break;',
+    '    }',
+    '}',
+    'if (position != -1) {',
+    '    System.out.println("Found at index " + position);',
+    '} else {',
+    '    System.out.println("Not found");',
+    '}'
+  ],
+  'java-bubble': [
+    'int temp;',
+    'for (int pass = 0; pass < arr.length - 1; pass++) {',
+    '    for (int i = 0; i < arr.length - 1 - pass; i++) {',
+    '        if (arr[i] > arr[i + 1]) {',
+    '            temp = arr[i];',
+    '            arr[i] = arr[i + 1];',
+    '            arr[i + 1] = temp;',
+    '        }',
+    '    }',
+    '}'
+  ]
+};
+
+// ═══ QUIZ DATA ═══
+const qData = {
+  'ps-1d': [
+    {
+      q: 'Which is the correct declaration for a 1D integer array with 5 elements in Cambridge pseudocode?',
+      opts: ['arr : ARRAY[5] OF INTEGER', 'DECLARE arr : ARRAY[1:5] OF INTEGER', 'DECLARE arr : INTEGER[1:5]', 'arr \u2190 ARRAY[1:5] OF INTEGER'],
+      ans: 1,
+      exp: 'The correct syntax is: DECLARE identifier : ARRAY[lower:upper] OF DataType. Both DECLARE and ARRAY are required keywords.'
+    },
+    {
+      q: 'An array is declared as ARRAY[1:8] OF INTEGER. How many elements does it hold?',
+      opts: ['7', '8', '9', 'It depends on the data'],
+      ans: 1,
+      exp: 'Bounds 1 to 8 give 8 \u2212 1 + 1 = 8 elements, at indices 1, 2, 3, 4, 5, 6, 7, 8.'
+    },
+    {
+      q: 'Which statement correctly assigns the value 42 to the third element of an array called Scores (with lower bound 1)?',
+      opts: ['Scores \u2190 42', 'Scores(3) \u2190 42', 'Scores[3] \u2190 42', 'Scores[2] \u2190 42'],
+      ans: 2,
+      exp: 'Elements are accessed with square brackets. With a lower bound of 1, the third element is at index 3: Scores[3] \u2190 42.'
+    }
+  ],
+  'ps-2d': [
+    {
+      q: 'Which is the correct declaration for a 3-row, 4-column integer grid in Cambridge pseudocode?',
+      opts: ['DECLARE Grid : ARRAY[3][4] OF INTEGER', 'DECLARE Grid : ARRAY[1:3, 1:4] OF INTEGER', 'DECLARE Grid : ARRAY[3, 4] OF INTEGER', 'DECLARE Grid : INTEGER[1:3][1:4]'],
+      ans: 1,
+      exp: 'The syntax for a 2D array is DECLARE identifier : ARRAY[r1:r2, c1:c2] OF DataType. Both dimension bounds go inside one pair of square brackets, separated by a comma.'
+    },
+    {
+      q: 'How do you access the element in row 2, column 3 of a 2D array called Grid in Cambridge pseudocode?',
+      opts: ['Grid[2][3]', 'Grid(2, 3)', 'Grid[2, 3]', 'Grid[3, 2]'],
+      ans: 2,
+      exp: 'Cambridge pseudocode uses one pair of square brackets with row and column separated by a comma: Grid[row, col]. Java uses two separate bracket pairs; pseudocode uses one with a comma.'
+    },
+    {
+      q: 'How many loops are needed to visit every element in a 2D array?',
+      opts: ['One loop', 'Two nested loops', 'Three loops', 'It depends on the array size'],
+      ans: 1,
+      exp: 'You need an outer loop to step through rows and an inner loop to step through columns within each row. Together they visit every element in the grid.'
+    }
+  ],
+  'ps-linear': [
+    {
+      q: 'Why is a WHILE loop used (with a Found flag) for a Find First search, rather than a FOR loop?',
+      opts: [
+        'WHILE loops are always faster than FOR loops',
+        'Cambridge pseudocode has no FOR loop',
+        'Cambridge pseudocode has no BREAK, so the WHILE condition with Found = FALSE provides the early exit when a match is found',
+        'A Found flag can only be declared inside a WHILE loop'
+      ],
+      ans: 2,
+      exp: 'Pseudocode has no BREAK statement. Instead, the condition WHILE i <= n AND Found = FALSE stops the loop automatically when Found becomes TRUE, without checking the remaining elements.'
+    },
+    {
+      q: 'Position is initialised to \u22121 before the search loop. What does it mean if Position is still \u22121 after the loop ends?',
+      opts: [
+        'The target is stored at index \u22121',
+        'The array has only one element',
+        'The target was not found anywhere in the array',
+        'The loop did not execute'
+      ],
+      ans: 2,
+      exp: '\u22121 is used as a "not found" sentinel value because valid array indices are always 1 or greater. If Position is still \u22121 after the loop, no match was ever found.'
+    },
+    {
+      q: 'A Count All search uses a FOR loop. What is the main reason for choosing FOR over WHILE?',
+      opts: [
+        'FOR loops can compare strings; WHILE loops cannot',
+        'A Count All search must visit every element to count all occurrences \u2014 it cannot exit early, and a FOR loop iterates a known number of times',
+        'FOR loops run faster when counting',
+        'Cambridge pseudocode requires FOR for all counting tasks'
+      ],
+      ans: 1,
+      exp: 'Count All must check every element \u2014 there may be more matches later in the array. A FOR loop is ideal because the number of iterations is known in advance: exactly one per element.'
+    }
+  ],
+  'ps-bubble': [
+    {
+      q: 'What does the inner loop of bubble sort compare on each iteration?',
+      opts: [
+        'The current element with the first element of the array',
+        'Two adjacent elements, swapping them if they are in the wrong order',
+        'The smallest element with every other element',
+        'Every element with every other element'
+      ],
+      ans: 1,
+      exp: 'Bubble sort compares Arr[i] with Arr[i+1] and swaps them if Arr[i] > Arr[i+1]. Only adjacent pairs are compared on each step.'
+    },
+    {
+      q: 'Why is a Temp variable needed when swapping two array elements?',
+      opts: [
+        'To store the index of the element being swapped',
+        'To hold one value temporarily so it is not lost when the first element is overwritten',
+        'To count the number of swaps that have occurred',
+        'Cambridge pseudocode requires a Temp variable for all assignments'
+      ],
+      ans: 1,
+      exp: 'Writing Arr[i] \u2190 Arr[i+1] immediately destroys the original value of Arr[i]. Saving it to Temp first lets you complete the swap: Temp \u2190 Arr[i], then Arr[i] \u2190 Arr[i+1], then Arr[i+1] \u2190 Temp.'
+    },
+    {
+      q: 'In the optimised bubble sort, the outer loop is WHILE with a Swapped flag. Why not use FOR with BREAK?',
+      opts: [
+        'WHILE loops are more efficient than FOR loops for sorting',
+        'Cambridge pseudocode has no BREAK statement, so the WHILE condition with Swapped = TRUE achieves the same early-exit effect',
+        'A Swapped flag can only be used inside a WHILE loop',
+        'FOR loops cannot be nested'
+      ],
+      ans: 1,
+      exp: 'Pseudocode has no BREAK. The WHILE condition WHILE Pass <= n-1 AND Swapped = TRUE automatically stops the sort when a full pass completes with no swaps \u2014 the same result as a break would give.'
+    }
+  ],
+  'java-1d': [
+    {
+      q: 'How do you get the number of elements in a Java array called arr?',
+      opts: ['arr.size()', 'arr.length', 'arr.length()', 'length(arr)'],
+      ans: 1,
+      exp: 'arr.length is a property (no parentheses). Compare: String has a length() method (with parentheses), but arrays use a length property without parentheses.'
+    },
+    {
+      q: 'A Java array is declared as int[] arr = {10, 20, 30, 40, 50}. What is the index of the last element?',
+      opts: ['5', '4', '6', 'arr.length'],
+      ans: 1,
+      exp: 'Java arrays are zero-indexed. With 5 elements, valid indices are 0, 1, 2, 3, 4. The last valid index is always arr.length \u2212 1 = 4.'
+    },
+    {
+      q: 'Which correctly declares and initialises a Java integer array with values 1, 2, 3?',
+      opts: ['int arr = {1, 2, 3};', 'int[] arr = {1, 2, 3};', 'int arr[] = [1, 2, 3];', 'array arr = {1, 2, 3};'],
+      ans: 1,
+      exp: 'The type int[] declares an integer array. Curly braces {} are used for the initialiser list. The brackets [] must be part of the type, not the variable name.'
+    }
+  ],
+  'java-2d': [
+    {
+      q: 'How do you access the element at row 1, column 2 of a Java 2D array called grid?',
+      opts: ['grid[1, 2]', 'grid(1)(2)', 'grid[1][2]', 'grid.get(1, 2)'],
+      ans: 2,
+      exp: 'Java uses two separate index brackets: grid[row][col]. This is different from pseudocode, which uses a single pair with a comma: grid[row, col].'
+    },
+    {
+      q: 'For a 2D Java array called grid, what does grid.length return?',
+      opts: ['Total number of elements', 'Number of columns', 'Number of rows', 'Number of elements in the first row'],
+      ans: 2,
+      exp: 'grid.length gives the number of rows (the length of the outer array). To get the number of columns in a specific row, use grid[row].length.'
+    },
+    {
+      q: 'Which correctly declares a 2D integer array with 3 rows and 4 columns in Java?',
+      opts: ['int grid[3][4];', 'int[][] grid = new int[3][4];', 'int[3][4] grid;', 'int[][] grid = {3, 4};'],
+      ans: 1,
+      exp: 'The type int[][] declares a 2D array. new int[3][4] allocates memory for 3 rows and 4 columns. The brackets go with the type, not the variable name.'
+    }
+  ],
+  'java-linear': [
+    {
+      q: 'In a Java Find First search, what does the break statement do?',
+      opts: [
+        'It resets the loop counter to 0',
+        'It exits the loop immediately when a match is found, so no further elements are checked',
+        'It skips the current element and moves to the next',
+        'It stores the current index in position'
+      ],
+      ans: 1,
+      exp: 'break exits the innermost loop immediately. This is exactly what Find First needs \u2014 once a match is found, all remaining elements can be skipped.'
+    },
+    {
+      q: 'Why must you use .equals() instead of == when comparing String values in Java?',
+      opts: [
+        '== only works with numbers; .equals() works with all types',
+        '== compares object references (memory addresses), not the actual string content; .equals() compares the characters themselves',
+        '.equals() is always faster than ==',
+        'Cambridge requires .equals() in all comparisons'
+      ],
+      ans: 1,
+      exp: 'The == operator tests whether two variables refer to the exact same object. Two separate String objects can contain the same text but be different objects, so == may return false. .equals() compares the actual characters and gives the correct result.'
+    },
+    {
+      q: 'In a Count All search in Java, why is there no break statement inside the loop?',
+      opts: [
+        'Java does not support break inside counting loops',
+        'break would cause the count variable to reset',
+        'The loop must visit every element to count all occurrences \u2014 breaking at the first match would miss any matches that follow',
+        'break is only valid in Find First searches'
+      ],
+      ans: 2,
+      exp: 'Count All must check every element. If you break after the first match, count will be at most 1 \u2014 all subsequent occurrences are never seen.'
+    }
+  ],
+  'java-bubble': [
+    {
+      q: 'What is the purpose of the temp variable in a Java bubble sort swap?',
+      opts: [
+        'To count the number of comparisons made',
+        'To hold one value temporarily so it is not overwritten before it can be moved to its new position',
+        'To store the final sorted position of an element',
+        'To track whether a swap has occurred on this pass'
+      ],
+      ans: 1,
+      exp: 'Without temp, writing arr[i] = arr[i+1] immediately destroys the original value of arr[i]. Saving it to temp first lets you set arr[i+1] = temp, completing the swap correctly.'
+    },
+    {
+      q: 'On an array of n elements, what is the maximum number of passes needed to guarantee it is fully sorted?',
+      opts: ['1', 'n', 'n \u2212 1', 'n / 2'],
+      ans: 2,
+      exp: 'After each pass the next-largest unsorted element reaches its final position. After n\u22121 passes all elements are in place. The last element is automatically correct once the others are sorted.'
+    },
+    {
+      q: 'In the optimised Java bubble sort, if swapped is still false after the inner loop, what happens next?',
+      opts: [
+        'The array is reset and sorting starts again',
+        'The outer loop continues to the next pass',
+        'break exits the outer loop immediately \u2014 no swaps during a pass means the array is already sorted',
+        'An exception is thrown'
+      ],
+      ans: 2,
+      exp: 'If swapped remains false after a complete pass, every element is already in its correct position. The break statement exits the outer for loop, avoiding all remaining unnecessary passes.'
+    }
+  ]
+};
+
+// ═══ PARSONS LOGIC ═══
+let dragSrc = null;
+const builtP = new Set();
+
+function buildP(id) {
+  if (builtP.has(id)) return;
+  builtP.add(id);
+  const lines = pData[id];
+  if (!lines) return;
+  const bank = document.getElementById('bank-' + id);
+  const answer = document.getElementById('answer-' + id);
+  if (!bank || !answer) return;
+  shuffle([...lines]).forEach(line => bank.appendChild(makeItem(line)));
+  setupZone(bank);
+  setupZone(answer);
+}
+
+function resetP(id) {
+  builtP.delete(id);
+  const bank = document.getElementById('bank-' + id);
+  const answer = document.getElementById('answer-' + id);
+  const fb = document.getElementById('pfb-' + id);
+  if (bank)   bank.innerHTML   = '<h4>Code Bank</h4>';
+  if (answer) answer.innerHTML = '<h4>Your Answer</h4>';
+  if (fb)     { fb.className = 'parsons-fb'; fb.textContent = ''; }
+  buildP(id);
+}
+
+function checkP(id) {
+  const correct = pData[id];
+  const items = document.getElementById('answer-' + id).querySelectorAll('.parsons-item');
+  let score = 0;
+  items.forEach((item, idx) => {
+    item.classList.remove('correct', 'incorrect');
+    const ok = idx < correct.length && item.textContent === correct[idx];
+    item.classList.add(ok ? 'correct' : 'incorrect');
+    if (ok) score++;
+  });
+  const fb = document.getElementById('pfb-' + id);
+  if (score === correct.length && items.length === correct.length) {
+    fb.textContent = '\u2705 All ' + correct.length + ' lines correct!';
+    fb.className = 'parsons-fb show pass';
+  } else {
+    fb.textContent = score + ' of ' + correct.length + ' lines correct. Lines in red are in the wrong position.';
+    fb.className = 'parsons-fb show fail';
+  }
+}
+
+function revealP(id) {
+  const correct = pData[id];
+  const answer = document.getElementById('answer-' + id);
+  answer.innerHTML = '<h4>Your Answer</h4>';
+  correct.forEach(line => { const item = makeItem(line); item.classList.add('correct'); answer.appendChild(item); });
+  document.getElementById('bank-' + id).querySelectorAll('.parsons-item').forEach(i => i.remove());
+  const fb = document.getElementById('pfb-' + id);
+  fb.textContent = '\ud83d\udca1 Solution shown. Press Reset to try again.';
+  fb.className = 'parsons-fb show pass';
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function makeItem(text) {
+  const d = document.createElement('div');
+  d.className = 'parsons-item';
+  d.textContent = text;
+  d.draggable = true;
+  d.addEventListener('dragstart', e => { dragSrc = d; d.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+  d.addEventListener('dragend',   () => d.classList.remove('dragging'));
+  d.addEventListener('dragover',  e => { e.preventDefault(); d.classList.add('drag-over'); });
+  d.addEventListener('dragleave', () => d.classList.remove('drag-over'));
+  d.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation();
+    d.classList.remove('drag-over');
+    if (dragSrc && dragSrc !== d) d.parentNode.insertBefore(dragSrc, d);
+  });
+  return d;
+}
+
+function setupZone(zone) {
+  zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('drop',     e => { e.preventDefault(); if (dragSrc) zone.appendChild(dragSrc); });
+}
+
+// ═══ QUIZ LOGIC ═══
+const builtQ = new Set();
+
+function buildQ(id) {
+  if (builtQ.has(id)) return;
+  builtQ.add(id);
+  const questions = qData[id];
+  if (!questions) return;
+  const container = document.getElementById('ql-' + id);
+  if (!container) return;
+  container.innerHTML = '';
+
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+
+    const qDiv = document.createElement('div');
+    qDiv.className = 'quiz-q';
+    qDiv.innerHTML = '<span class="qnum">' + (qi + 1) + '</span>' + q.q;
+    card.appendChild(qDiv);
+
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'quiz-opts';
+    q.opts.forEach((opt, oi) => {
+      const lbl = document.createElement('label');
+      lbl.className = 'quiz-opt';
+      lbl.innerHTML = '<input type="radio" name="q-' + id + '-' + qi + '" value="' + oi + '"><span>' + opt + '</span>';
+      optsDiv.appendChild(lbl);
+    });
+    card.appendChild(optsDiv);
+
+    const exp = document.createElement('div');
+    exp.className = 'quiz-exp';
+    exp.id = 'qexp-' + id + '-' + qi;
+    card.appendChild(exp);
+
+    container.appendChild(card);
+  });
+}
+
+function submitQ(id) {
+  const questions = qData[id];
+  let score = 0;
+  questions.forEach((q, qi) => {
+    const selected = document.querySelector('input[name="q-' + id + '-' + qi + '"]:checked');
+    const opts = document.querySelectorAll('#ql-' + id + ' .quiz-card:nth-child(' + (qi + 1) + ') .quiz-opt');
+    const exp  = document.getElementById('qexp-' + id + '-' + qi);
+    document.querySelectorAll('input[name="q-' + id + '-' + qi + '"]').forEach(r => r.disabled = true);
+    opts.forEach((opt, oi) => {
+      if (oi === q.ans) opt.classList.add('opt-correct');
+      if (selected && parseInt(selected.value) === oi && oi !== q.ans) opt.classList.add('opt-wrong');
+    });
+    if (selected && parseInt(selected.value) === q.ans) {
+      score++;
+      exp.innerHTML = '\u2705 <strong>Correct!</strong> ' + q.exp;
+      exp.className = 'quiz-exp show correct';
+    } else if (selected) {
+      exp.innerHTML = '\u274c <strong>Not quite.</strong> ' + q.exp;
+      exp.className = 'quiz-exp show wrong';
+    } else {
+      exp.innerHTML = '\u26a0\ufe0f <strong>Not answered.</strong> ' + q.exp;
+      exp.className = 'quiz-exp show wrong';
+    }
+  });
+  const sc = document.getElementById('qs-' + id);
+  sc.style.display = 'block';
+  sc.style.color = score === 3 ? 'var(--green)' : score === 2 ? 'var(--amber-dark)' : 'var(--red)';
+  sc.textContent = 'Score: ' + score + ' / 3';
+}
+
+// ═══ INIT ═══
+buildP('ps-1d');
+buildQ('ps-1d');
+</script>
+</body>
+</html>
