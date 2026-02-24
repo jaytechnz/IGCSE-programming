@@ -846,158 +846,191 @@ function switchArr(prefix, app, type) {
 const codeStrings = {
   'ps-ff-int': `// Linear Search — Find First Occurrence
 // 1D INTEGER array   (IGCSE 0478 pseudocode)
-DECLARE arr      : ARRAY[0:6] OF INTEGER
-arr ← {45, 12, 23, 7, 91, 23, 34}
-DECLARE target   : INTEGER
-target ← 23
-DECLARE found    : BOOLEAN
-DECLARE position : INTEGER
-DECLARE i        : INTEGER
+DECLARE Numbers : ARRAY[1:7] OF INTEGER
+Numbers[1] ← 45
+Numbers[2] ← 12
+Numbers[3] ← 23
+Numbers[4] ← 7
+Numbers[5] ← 91
+Numbers[6] ← 23
+Numbers[34] ← 34
+DECLARE Target : INTEGER
+DECLARE Found : BOOLEAN
+DECLARE Position : INTEGER
+DECLARE i : INTEGER
 
-found    ← FALSE
-position ← -1       // -1 means "not found yet"
-i        ← 0
+Target ← 23
+Found ← FALSE
+Position ← -1       // -1 means "not found yet"
+i ← 0
 
-WHILE i < 7 AND found = FALSE DO
-    IF arr[i] = target THEN
-        found    ← TRUE
-        position ← i    // remember where we found it
+WHILE i < 7 AND Found = FALSE DO
+    IF Numbers[i] = Target
+      THEN
+        Found ← TRUE
+        Position ← i    // remember where we found it
     ENDIF
     i ← i + 1
 ENDWHILE
 
-IF found = TRUE THEN
-    OUTPUT "Found at index ", position
-ELSE
-    OUTPUT target, " is not in the array"
+IF Found = TRUE
+  THEN
+    OUTPUT "Found at index ", Position
+  ELSE
+    OUTPUT Target, " is not in the array"
 ENDIF`,
 
   'ps-ff-str': `// Linear Search — Find First Occurrence
 // 1D STRING array   (IGCSE 0478 pseudocode)
-DECLARE names    : ARRAY[0:4] OF STRING
-names ← {"Alice", "Ben", "Zara", "Omar", "Zara"}
-DECLARE target   : STRING
-target ← "Zara"
-DECLARE found    : BOOLEAN
-DECLARE position : INTEGER
-DECLARE i        : INTEGER
+DECLARE Names : ARRAY[1:5] OF STRING
+DECLARE SearchName : STRING
+DECLARE Found : BOOLEAN
+DECLARE Position : INTEGER
+DECLARE i : INTEGER
 
-found    ← FALSE
-position ← -1
-i        ← 0
+Names[0] ← "Alice"
+Names[1] ← "Ben"
+Names[2] ← "Zara"
+Names[3] ← "Omar"
+Names[4] ← "Zara"
 
-WHILE i < 5 AND found = FALSE DO
-    IF names[i] = target THEN    // = works for STRING
-        found    ← TRUE
-        position ← i
+SearchName ← "Zara"
+Found ← FALSE
+Position ← -1
+i ← 0
+
+WHILE i < 5 AND Found = FALSE DO
+    IF Names[i] = SearchName    // = works for STRING in pseudocode
+      THEN
+        Found ← TRUE
+        Position ← i
     ENDIF
     i ← i + 1
 ENDWHILE
 
-IF found = TRUE THEN
-    OUTPUT "Found at index ", position
-ELSE
-    OUTPUT target, " is not in the array"
+IF Found = TRUE
+  THEN
+    OUTPUT "Found at index ", Position
+  ELSE
+    OUTPUT SearchName, " is not in the array"
 ENDIF`,
 
   'ps-ca-int': `// Linear Search — Count All Occurrences
 // 1D INTEGER array   (IGCSE 0478 pseudocode)
-DECLARE scores  : ARRAY[0:6] OF INTEGER
-scores ← {45, 12, 23, 7, 23, 23, 34}
-DECLARE target  : INTEGER
-target ← 23
-DECLARE count   : INTEGER
-count ← 0
+DECLARE Scores : ARRAY[1:7] OF INTEGER
+DECLARE TargetScore : INTEGER
+DECLARE CountTargetScore : INTEGER
 
-FOR i ← 0 TO 6
-    IF scores[i] = target THEN
-        count ← count + 1   // add 1 for each match
+Scores[1] ← 45
+Scores[2] ← 56
+Scores[3] ← 89
+Scores[4] ← 27
+Scores[5] ← 89
+Scores[6] ← 93
+Scores[7] ← 74
+
+TargetScore ← 89
+CountTargetScore ← 0
+
+FOR i ← 1 TO 7
+    IF Scores[i] = TargetScore
+      THEN
+        CountTargetScore ← CountTargetScore + 1   // add 1 for each match
     ENDIF
 NEXT i
 // The loop always runs to the end
 // because there might be more matches later
 
-OUTPUT target, " appears ", count, " time(s)"`,
+OUTPUT TargetScore, " appears ", CountTargetScore, " time(s)"`,
 
   'ps-ca-str': `// Linear Search — Count All Occurrences
 // 1D STRING array   (IGCSE 0478 pseudocode)
-DECLARE items   : ARRAY[0:5] OF STRING
+DECLARE Animals : ARRAY[1:6] OF STRING
+DECLARE SearchAnimal : STRING
+DECLARE CountAnimals : INTEGER
 items ← {"cat", "dog", "cat", "bird", "cat", "fish"}
-DECLARE target  : STRING
-target ← "cat"
-DECLARE count   : INTEGER
-count ← 0
 
-FOR i ← 0 TO 5
-    IF items[i] = target THEN
-        count ← count + 1
+
+SearchAnimal ← "cat"
+CountAnimals ← 0
+
+FOR i ← 1 TO 6
+    IF Animals[i] = SearchAnimal THEN
+        CountAnimals ← CountAnimals + 1
     ENDIF
 NEXT i
 
-OUTPUT target, " appears ", count, " time(s)"`,
+OUTPUT SearchAnimal, " appears ", CountAnimals, " time(s)"`,
 
   'ps-td-int': `// Linear Search — 2D INTEGER Array
 // Two nested FOR loops; found flag stops overwriting
-DECLARE grid     : ARRAY[0:2, 0:2] OF INTEGER
-DECLARE target   : INTEGER
-target ← 42
-DECLARE found    : BOOLEAN
-DECLARE foundRow : INTEGER
-DECLARE foundCol : INTEGER
+DECLARE Grid : ARRAY[1:2, 1:2] OF INTEGER
+DECLARE Target : INTEGER
+DECLARE Row : INTEGER
+DECLARE Col : INTEGER
+Target ← 42
+DECLARE Found : BOOLEAN
+DECLARE FoundRow : INTEGER
+DECLARE FoundCol : INTEGER
 
-found    ← FALSE
-foundRow ← -1
-foundCol ← -1
+Found ← FALSE
+FoundRow ← -1
+FoundCol ← -1
 
-FOR row ← 0 TO 2
-    FOR col ← 0 TO 2
-        IF grid[row, col] = target AND found = FALSE THEN
-            found    ← TRUE
-            foundRow ← row
-            foundCol ← col
+FOR Row ← 1 TO 2
+    FOR Col ← 1 TO 2
+        IF Grid[Row, Col] = Target AND Found = FALSE 
+          THEN
+            Found ← TRUE
+            FoundRow ← Row
+            FoundCol ← Col
         ENDIF
-    NEXT col
-NEXT row
+    NEXT Col
+NEXT Row
 
-IF found = TRUE THEN
-    OUTPUT "Found at row ", foundRow, ", column ", foundCol
+IF Found = TRUE THEN
+    OUTPUT "Found at row ", FoundRow, ", column ", FoundCol
 ELSE
-    OUTPUT target, " is not in the grid"
+    OUTPUT Target, " is not in the grid"
 ENDIF`,
 
   'ps-td-str': `// Linear Search — 2D STRING Array
-DECLARE grid     : ARRAY[0:2, 0:2] OF STRING
-DECLARE target   : STRING
-target ← "mango"
-DECLARE found    : BOOLEAN
-DECLARE foundRow : INTEGER
-DECLARE foundCol : INTEGER
+DECLARE Grid : ARRAY[1:2, 1:2] OF STRING
+DECLARE Target : STRING
+DECLARE Found : BOOLEAN
+DECLARE FoundRow : INTEGER
+DECLARE FoundCol : INTEGER
+DECLARE Row : INTEGER
+DECLARE Col : INTEGER
 
-found    ← FALSE
-foundRow ← -1
-foundCol ← -1
+Target ← "mango"
+Found ← FALSE
+FoundRow ← -1
+FoundCol ← -1
 
-FOR row ← 0 TO 2
-    FOR col ← 0 TO 2
-        IF grid[row, col] = target AND found = FALSE THEN
-            found    ← TRUE
-            foundRow ← row
-            foundCol ← col
+FOR Row ← 1 TO 2
+    FOR Col ← 1 TO 2
+        IF Grid[Row, Col] = Target AND Found = FALSE 
+          THEN
+            Found    ← TRUE
+            FoundRow ← Row
+            FoundCol ← Col
         ENDIF
-    NEXT col
-NEXT row
+    NEXT Col
+NEXT Row
 
-IF found = TRUE THEN
-    OUTPUT "Found at row ", foundRow, ", column ", foundCol
-ELSE
-    OUTPUT target, " is not in the grid"
+IF Found = TRUE 
+  THEN
+    OUTPUT "Found at Row ", FoundRow, ", column ", FoundCol
+  ELSE
+    OUTPUT Target, " is not in the grid"
 ENDIF`,
 
   'java-ff-int': `// Linear Search - Find First Occurrence
 // 1D integer array (Java)
-int[] scores   = {45, 12, 23, 7, 91, 23, 34};
-int   target   = 23;
-int   position = -1;   // -1 means "not found yet"
+int[] scores = {45, 12, 23, 7, 91, 23, 34};
+int target = 23;
+int position = -1;   // -1 means "not found yet"
 
 for (int i = 0; i < scores.length; i++) {
     if (scores[i] == target) {
@@ -1014,9 +1047,9 @@ if (position != -1) {
 
   'java-ff-str': `// Linear Search - Find First Occurrence
 // 1D String array (Java)
-String[] names    = {"Alice", "Ben", "Zara", "Omar", "Zara"};
-String   target   = "Zara";
-int      position = -1;
+String[] names = {"Alice", "Ben", "Zara", "Omar", "Zara"};
+String target = "Zara";
+int position = -1;
 
 for (int i = 0; i < names.length; i++) {
     if (names[i].equals(target)) {   // use .equals() for Strings
@@ -1035,8 +1068,8 @@ if (position != -1) {
 // 1D integer array (Java)
 // for loop visits every element - no break allowed
 int[] scores = {45, 12, 23, 7, 23, 23, 34};
-int   target = 23;
-int   count  = 0;
+int target = 23;
+int count  = 0;
 
 for (int i = 0; i < scores.length; i++) {
     if (scores[i] == target) {
@@ -1049,9 +1082,9 @@ System.out.println(target + " appears " + count + " time(s)");`,
 
   'java-ca-str': `// Linear Search - Count All Occurrences
 // 1D String array (Java)
-String[] items  = {"cat", "dog", "cat", "bird", "cat", "fish"};
-String   target = "cat";
-int      count  = 0;
+String[] items = {"cat", "dog", "cat", "bird", "cat", "fish"};
+String target = "cat";
+int count  = 0;
 
 for (int i = 0; i < items.length; i++) {
     if (items[i].equals(target)) {   // .equals() for Strings
@@ -1069,17 +1102,15 @@ int[][] grid = {
     { 7, 18,  9},
     {33, 61,  5}
 };
-int target   = 42;
+int target = 42;
 int foundRow = -1;
 int foundCol = -1;
 
-outer:                            // label for the outer loop
 for (int row = 0; row < grid.length; row++) {
     for (int col = 0; col < grid[row].length; col++) {
         if (grid[row][col] == target) {
             foundRow = row;
             foundCol = col;
-            break outer;          // exits BOTH loops at once
         }
     }
 }
@@ -1097,16 +1128,14 @@ String[][] grid = {
     {"lime",  "lemon", "kiwi"}
 };
 String target   = "mango";
-int    foundRow = -1;
-int    foundCol = -1;
+int foundRow = -1;
+int foundCol = -1;
 
-outer:
 for (int row = 0; row < grid.length; row++) {
     for (int col = 0; col < grid[row].length; col++) {
         if (grid[row][col].equals(target)) {   // .equals() for Strings
             foundRow = row;
             foundCol = col;
-            break outer;
         }
     }
 }
@@ -1223,12 +1252,12 @@ const parsonsData = {
   ps: {
     ff: {
       int: [
-        'found    \u2190 FALSE',
+        'found \u2190 FALSE',
         'position \u2190 -1',
-        'i        \u2190 0',
+        'i \u2190 0',
         'WHILE i < 7 AND found = FALSE DO',
         '    IF arr[i] = target THEN',
-        '        found    \u2190 TRUE',
+        '        found \u2190 TRUE',
         '        position \u2190 i',
         '    ENDIF',
         '    i \u2190 i + 1',
@@ -1240,12 +1269,12 @@ const parsonsData = {
         'ENDIF'
       ],
       str: [
-        'found    \u2190 FALSE',
+        'found \u2190 FALSE',
         'position \u2190 -1',
-        'i        \u2190 0',
+        'i \u2190 0',
         'WHILE i < 5 AND found = FALSE DO',
         '    IF names[i] = target THEN',
-        '        found    \u2190 TRUE',
+        '        found \u2190 TRUE',
         '        position \u2190 i',
         '    ENDIF',
         '    i \u2190 i + 1',
@@ -1279,13 +1308,13 @@ const parsonsData = {
     },
     td: {
       int: [
-        'found    \u2190 FALSE',
+        'found \u2190 FALSE',
         'foundRow \u2190 -1',
         'foundCol \u2190 -1',
         'FOR row \u2190 0 TO 2',
         '    FOR col \u2190 0 TO 2',
         '        IF grid[row, col] = target AND found = FALSE THEN',
-        '            found    \u2190 TRUE',
+        '            found \u2190 TRUE',
         '            foundRow \u2190 row',
         '            foundCol \u2190 col',
         '        ENDIF',
@@ -1298,13 +1327,13 @@ const parsonsData = {
         'ENDIF'
       ],
       str: [
-        'found    \u2190 FALSE',
+        'found \u2190 FALSE',
         'foundRow \u2190 -1',
         'foundCol \u2190 -1',
         'FOR row \u2190 0 TO 2',
         '    FOR col \u2190 0 TO 2',
         '        IF grid[row, col] = target AND found = FALSE THEN',
-        '            found    \u2190 TRUE',
+        '            found \u2190 TRUE',
         '            foundRow \u2190 row',
         '            foundCol \u2190 col',
         '        ENDIF',
@@ -1373,7 +1402,6 @@ const parsonsData = {
       int: [
         'int foundRow = -1;',
         'int foundCol = -1;',
-        'outer:',
         'for (int row = 0; row < grid.length; row++) {',
         '    for (int col = 0; col < grid[row].length; col++) {',
         '        if (grid[row][col] == target) {',
@@ -1392,7 +1420,6 @@ const parsonsData = {
       str: [
         'int foundRow = -1;',
         'int foundCol = -1;',
-        'outer:',
         'for (int row = 0; row < grid.length; row++) {',
         '    for (int col = 0; col < grid[row].length; col++) {',
         '        if (grid[row][col].equals(target)) {',
@@ -1625,11 +1652,11 @@ const quizBank = [
     q: "Which of these is the correct way to declare a 1D integer array with 5 elements in Cambridge IGCSE pseudocode?",
     opts: [
       "DECLARE arr : ARRAY[1:5] OF INTEGER",
-      "DECLARE arr : ARRAY[0:4] OF INTEGER",
+      "DECLARE arr : ARRAY[0:5] OF INTEGER",
       "arr = ARRAY[5] OF INTEGER",
       "INTEGER arr[0:4]"
     ],
-    ans: 1,
+    ans: 0,
     exp: "Cambridge pseudocode uses the syntax <code>DECLARE identifier : ARRAY[lower:upper] OF DataType</code>. Arrays are zero-indexed, so a 5-element array uses bounds 0 to 4, giving <code>ARRAY[0:4]</code>."
   }
 ];
