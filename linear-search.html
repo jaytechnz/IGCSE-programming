@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Search — Cambridge IGCSE Computer Science 0478</title>
+
+<style>
+/* ══════════════ DESIGN TOKENS ══════════════ */
+:root {
+  --teal:        #006d77;
+  --teal-dark:   #004e56;
+  --teal-pale:   #e8f5f6;
+  --teal-mid:    #b2dde0;
+  --amber:       #e9c46a;
+  --amber-dark:  #c49a3c;
+  --amber-pale:  #fdf8ec;
+  --green:       #2a9d8f;
+  --green-pale:  #e4f5f3;
+  --red:         #c94040;
+  --red-pale:    #fdf0f0;
+  --grey-100:    #f4f5f7;
+  --grey-200:    #e8eaed;
+  --grey-400:    #9aa0ab;
+  --grey-700:    #3d4350;
+  --text:        #1c2029;
+  --white:       #ffffff;
+  --font-body:   'Arial', sans-serif;
+  --font-head:   'Arial', sans-serif;
+  --font-code:   'Courier New', monospace;
+  --radius:      10px;
+  --radius-sm:   6px;
+  --shadow-sm:   0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
+}
+
+/* ══════════════ RESET & BASE ══════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--grey-100); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.65; }
+code { font-family: var(--font-code); font-size: 0.88em; background: var(--grey-200); padding: 1px 6px; border-radius: 4px; }
+strong { font-weight: 800; }
+h1,h2,h3,h4 { font-family: var(--font-head); line-height: 1.2; }
+
+/* ══════════════ HEADER ══════════════ */
+.site-header {
+  background: var(--teal-dark);
+  padding: 22px 40px 18px;
+  position: relative; overflow: hidden;
+}
+.site-header::after {
+  content: ''; position: absolute;
+  width: 320px; height: 320px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  top: -120px; right: -60px; pointer-events: none;
+}
+.site-header::before {
+  content: ''; position: absolute;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: rgba(233,196,106,0.08);
+  bottom: -80px; right: 200px; pointer-events: none;
+}
+.header-inner { position: relative; z-index: 1; }
+.header-badge {
+  display: inline-block; background: var(--amber);
+  color: var(--teal-dark); font-family: var(--font-body); font-weight: 800;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+}
+.site-header h1 {
+  font-family: var(--font-head); color: var(--white);
+  font-size: 2.1rem; font-weight: 800; letter-spacing: -0.01em;
+}
+.site-header p { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 3px; font-weight: 600; }
+
+/* ══════════════ NAV ══════════════ */
+.main-nav {
+  background: var(--white); border-bottom: 2px solid var(--grey-200);
+  display: flex; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm);
+}
+.main-nav button {
+  flex: 1; padding: 15px 8px; background: none; border: none;
+  border-bottom: 3px solid transparent; font-family: var(--font-body);
+  font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; cursor: pointer; color: var(--grey-400);
+  transition: color 0.2s, border-color 0.2s; position: relative; bottom: -2px;
+}
+.main-nav button .nav-icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+.main-nav button:hover { color: var(--teal); }
+.main-nav button.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* ══════════════ SECTIONS ══════════════ */
+.section { display: none; padding: 36px 40px 72px; max-width: 1080px; margin: 0 auto; }
+.section.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title { font-family: var(--font-head); font-size: 1.7rem; color: var(--teal); margin-bottom: 4px; }
+.section-sub   { font-size: 0.88rem; color: var(--grey-400); margin-bottom: 30px; font-weight: 600; }
+
+/* ══════════════ CALLOUT BOXES ══════════════ */
+.callout {
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  font-size: 0.88rem; line-height: 1.7; position: relative;
+}
+.callout-teal  { background: var(--teal-pale);  border-left: 5px solid var(--teal); }
+.callout-amber { background: var(--amber-pale); border-left: 5px solid var(--amber-dark); }
+.callout-green { background: var(--green-pale); border-left: 5px solid var(--green); }
+.callout strong { color: var(--teal); }
+.callout-amber strong { color: var(--amber-dark); }
+.callout-green strong { color: var(--green); }
+.callout code { background: rgba(0,109,119,0.1); }
+
+/* ══════════════ CONCEPT CARDS (How It Works) ══════════════ */
+.concept-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+@media (max-width: 680px) { .concept-strip { grid-template-columns: 1fr; } }
+.concept-card {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--grey-200); padding: 20px 18px;
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+}
+.concept-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: var(--teal);
+}
+.concept-num {
+  width: 32px; height: 32px; background: var(--teal); color: var(--white);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 0.9rem; font-weight: 800; margin-bottom: 10px;
+}
+.concept-card h4 { font-size: 0.92rem; font-weight: 800; color: var(--teal); margin-bottom: 6px; }
+.concept-card p  { font-size: 0.83rem; color: var(--grey-700); line-height: 1.6; }
+
+/* ══════════════ COMPARISON PAIR ══════════════ */
+.compare-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+@media (max-width: 640px) { .compare-pair { grid-template-columns: 1fr; } }
+.compare-card { border-radius: var(--radius); padding: 20px; border: 2px solid; }
+.compare-card.c-find  { background: #f0faf8; border-color: var(--green); }
+.compare-card.c-count { background: #f3f6fd; border-color: #5c7cfa; }
+.compare-card h4 { font-size: 0.92rem; font-weight: 800; margin-bottom: 8px; }
+.compare-card.c-find  h4 { color: var(--green); }
+.compare-card.c-count h4 { color: #3a5bd6; }
+.compare-card p  { font-size: 0.83rem; color: var(--grey-700); line-height: 1.6; }
+.compare-card .compare-tag {
+  display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px;
+}
+.c-find  .compare-tag { background: var(--green); color: white; }
+.c-count .compare-tag { background: #5c7cfa; color: white; }
+
+/* ══════════════ ARRAY DIAGRAM ══════════════ */
+.array-diagram { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0 4px; }
+.arr-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.arr-cell .idx { font-size: 0.68rem; color: var(--grey-400); font-family: var(--font-code); }
+.arr-cell .val {
+  width: 48px; height: 42px; border: 2px solid var(--grey-200);
+  border-radius: var(--radius-sm); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-code); font-size: 0.9rem; font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ══════════════ ANIMATOR ══════════════ */
+.anim-card {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--grey-200); box-shadow: var(--shadow-md);
+  overflow: hidden; margin-bottom: 32px;
+}
+.anim-header {
+  background: var(--teal); color: var(--white);
+  padding: 14px 22px; display: flex; justify-content: space-between; align-items: center;
+}
+.anim-header h3 { font-family: var(--font-head); font-size: 1.05rem; font-weight: 800; }
+.anim-header span { font-size: 0.75rem; opacity: 0.7; font-family: var(--font-body); }
+.anim-body { padding: 28px; }
+
+/* Config row */
+.anim-config { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: flex-end; }
+.anim-field label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--grey-400); margin-bottom: 5px; }
+.anim-field input {
+  padding: 8px 12px; border: 2px solid var(--grey-200); border-radius: var(--radius-sm);
+  font-family: var(--font-code); font-size: 0.9rem; font-weight: 500;
+  color: var(--text); background: var(--grey-100); transition: border-color 0.2s;
+}
+.anim-field input:focus { outline: none; border-color: var(--teal); background: var(--white); }
+.anim-field input.narrow { width: 80px; text-align: center; }
+.anim-field input.wide   { width: 300px; }
+
+/* Array display */
+.anim-array-scroll { overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px; }
+.anim-array {
+  display: flex; gap: 8px; justify-content: center;
+  min-width: max-content; margin: 0 auto; padding: 4px 0;
+}
+.anim-slot { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.anim-label { font-size: 0.7rem; color: var(--grey-400); font-family: var(--font-code); }
+.anim-box {
+  width: 58px; height: 58px; border-radius: var(--radius-sm);
+  border: 2px solid var(--grey-200); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-code); font-size: 1.05rem; font-weight: 500;
+  transition: background 0.3s, border-color 0.3s, transform 0.25s, box-shadow 0.25s;
+  box-shadow: var(--shadow-sm);
+}
+.anim-box.state-idle     { }
+.anim-box.state-checking { background: var(--amber-pale); border-color: var(--amber-dark); transform: translateY(-4px) scale(1.1); box-shadow: 0 6px 18px rgba(233,196,106,0.4); }
+.anim-box.state-done     { background: var(--grey-100); color: var(--grey-400); border-color: var(--grey-200); }
+.anim-box.state-found    { background: var(--green-pale); border-color: var(--green); color: var(--green); transform: translateY(-4px) scale(1.12); box-shadow: 0 6px 18px rgba(42,157,143,0.35); }
+.anim-box.state-missed   { background: #fef5f5; border-color: #e8c4c4; color: #aaa; }
+
+/* Status + var track */
+.anim-status {
+  border-radius: var(--radius-sm); padding: 12px 18px; font-size: 0.9rem;
+  line-height: 1.55; margin-bottom: 16px; min-height: 52px; text-align: center;
+  background: var(--grey-100); border: 1px solid var(--grey-200);
+  transition: background 0.3s, border-color 0.3s;
+}
+.anim-status.s-check   { background: var(--amber-pale);  border-color: var(--amber-dark); }
+.anim-status.s-found   { background: var(--green-pale);  border-color: var(--green); color: var(--green); font-weight: 700; }
+.anim-status.s-miss    { background: var(--red-pale);    border-color: var(--red); color: var(--red); font-weight: 700; }
+
+.anim-vars { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 18px; }
+.anim-var-pill {
+  background: var(--grey-100); border: 1.5px solid var(--grey-200);
+  border-radius: 20px; padding: 6px 14px;
+  font-family: var(--font-code); font-size: 0.8rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+.anim-var-pill .pill-name  { color: var(--grey-400); margin-right: 4px; }
+.anim-var-pill .pill-val   { font-weight: 500; color: var(--teal); }
+.anim-var-pill.changed     { background: var(--amber-pale); border-color: var(--amber-dark); }
+
+.anim-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* ══════════════ BUTTONS ══════════════ */
+.btn {
+  padding: 10px 22px; border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-weight: 800; font-size: 0.83rem;
+  letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s;
+}
+.btn-teal     { background: var(--teal); color: var(--white); }
+.btn-teal:hover     { background: var(--teal-dark); }
+.btn-teal:disabled  { background: var(--grey-200); color: var(--grey-400); cursor: not-allowed; }
+.btn-outline  { background: var(--white); color: var(--teal); border: 2px solid var(--teal); }
+.btn-outline:hover  { background: var(--teal-pale); }
+.btn-ghost    { background: var(--grey-100); color: var(--grey-700); border: 1.5px solid var(--grey-200); }
+.btn-ghost:hover    { background: var(--grey-200); }
+
+/* ══════════════ TAB BARS ══════════════ */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 2px solid var(--grey-200); margin-bottom: 20px; }
+.tabs button {
+  padding: 8px 18px; background: var(--grey-100); border: 1.5px solid var(--grey-200);
+  border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-family: var(--font-body); font-size: 0.81rem; font-weight: 700;
+  color: var(--grey-400); cursor: pointer; transition: all 0.18s;
+  position: relative; bottom: -2px;
+}
+.tabs button:hover:not(.active) { background: var(--teal-pale); color: var(--teal); }
+.tabs button.active {
+  background: var(--white); color: var(--teal); border-color: var(--grey-200);
+  border-bottom: 2px solid var(--white); z-index: 1;
+}
+.tab-label { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-400); margin-bottom: 8px; margin-top: 6px; }
+
+/* Panel toggles */
+.lang-panel, .app-panel, .arr-panel { display: none; }
+.lang-panel.active, .app-panel.active, .arr-panel.active { display: block; }
+
+/* ══════════════ CODE CARD ══════════════ */
+.code-card { border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+.code-card-head {
+  background: var(--teal-dark); color: var(--white);
+  padding: 10px 18px; display: flex; justify-content: space-between; align-items: center;
+}
+.code-card-head h3 { font-family: var(--font-head); font-size: 0.95rem; font-weight: 800; }
+.code-card-head span { font-size: 0.7rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.07em; }
+.code-card pre {
+  margin: 0; padding: 22px 24px;
+  background: #0d1b2a; color: #cdd9e5;
+  font-family: var(--font-code); font-size: 0.8rem; line-height: 1.8;
+  overflow-x: auto; white-space: pre;
+}
+/* Syntax colouring for code blocks (via CSS classes if we ever use spans — for now raw) */
+
+/* ══════════════ PARSONS ══════════════ */
+.parsons-wrap  { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 680px) { .parsons-wrap { grid-template-columns: 1fr; } }
+
+.parsons-zone {
+  border: 2px dashed var(--grey-200); border-radius: var(--radius);
+  background: var(--grey-100); min-height: 320px; padding: 12px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.parsons-zone.drop-active { border-color: var(--teal); background: var(--teal-pale); }
+.parsons-zone h4 {
+  font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--grey-400); margin-bottom: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--grey-200);
+}
+
+.parsons-item {
+  background: var(--white); border: 1.5px solid var(--grey-200);
+  border-left: 4px solid var(--teal); border-radius: var(--radius-sm);
+  padding: 9px 12px; margin-bottom: 7px;
+  font-family: var(--font-code); font-size: 0.78rem;
+  cursor: grab; user-select: none; white-space: pre;
+  transition: box-shadow 0.15s, transform 0.15s, opacity 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.parsons-item:active { cursor: grabbing; }
+.parsons-item:hover  { box-shadow: 0 4px 12px rgba(0,109,119,0.15); }
+.parsons-item.dragging  { opacity: 0.35; transform: scale(0.97); }
+.parsons-item.drag-over { border-top: 2px solid var(--teal); }
+.parsons-item.correct   { border-left-color: var(--green);  background: var(--green-pale); }
+.parsons-item.incorrect { border-left-color: var(--red);    background: var(--red-pale); }
+
+.parsons-puzzle-tag {
+  font-size: 0.81rem; color: var(--grey-400); font-weight: 600;
+  margin-bottom: 14px; padding: 8px 14px; background: var(--white);
+  border-radius: var(--radius-sm); border: 1.5px solid var(--grey-200);
+  display: flex; align-items: center; gap: 8px;
+}
+.parsons-puzzle-tag strong { color: var(--teal); }
+
+.parsons-feedback { border-radius: var(--radius-sm); padding: 12px 16px; font-size: 0.88rem; font-weight: 700; display: none; margin-top: 14px; }
+.parsons-feedback.show { display: block; }
+.parsons-feedback.pass { background: var(--green-pale); color: var(--green); border: 1.5px solid var(--green); }
+.parsons-feedback.fail { background: var(--red-pale);   color: var(--red);   border: 1.5px solid var(--red); }
+
+.progress-bar-wrap { height: 7px; background: var(--grey-200); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.progress-bar { height: 100%; background: var(--teal); border-radius: 4px; transition: width 0.5s ease; }
+
+/* ══════════════ QUIZ ══════════════ */
+.quiz-list { display: flex; flex-direction: column; gap: 20px; }
+.quiz-card {
+  background: var(--white); border-radius: var(--radius);
+  border: 1.5px solid var(--grey-200); overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.quiz-q {
+  padding: 16px 20px; background: var(--grey-100); font-weight: 700; font-size: 0.93rem;
+  line-height: 1.55; border-bottom: 1.5px solid var(--grey-200);
+}
+.quiz-q-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; background: var(--teal); color: var(--white);
+  border-radius: 50%; font-size: 0.78rem; font-weight: 800;
+  margin-right: 10px; vertical-align: middle; flex-shrink: 0;
+}
+.quiz-opts { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px;
+  border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 0.87rem; line-height: 1.45; background: var(--white);
+  transition: all 0.15s;
+}
+.quiz-opt:hover { border-color: var(--teal); background: var(--teal-pale); }
+.quiz-opt input { flex-shrink: 0; margin-top: 2px; accent-color: var(--teal); }
+.quiz-opt.opt-correct { background: var(--green-pale); border-color: var(--green); }
+.quiz-opt.opt-wrong   { background: var(--red-pale);   border-color: var(--red); }
+.quiz-explanation { padding: 10px 20px 16px; font-size: 0.83rem; line-height: 1.55; display: none; }
+.quiz-explanation.show { display: block; }
+.quiz-explanation.correct   { color: #1b6e40; }
+.quiz-explanation.incorrect { color: var(--red); }
+
+footer { background: var(--teal-dark); color: rgba(255,255,255,0.55); text-align: center; padding: 20px; font-size: 0.78rem; font-weight: 600; }
+footer strong { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-badge">Cambridge IGCSE 0478</div>
+    <h1>Linear Search</h1>
+    <p>Interactive Learning Resource &mdash; 1D &amp; 2D Arrays</p>
+  </div>
+</header>
+
+<!-- ═══ NAV ═══ -->
+<nav class="main-nav">
+  <button class="active" onclick="showSection('understand')">
+    <span class="nav-icon">💡</span>Understand
+  </button>
+  <button onclick="showSection('code')">
+    <span class="nav-icon">💻</span>Code
+  </button>
+  <button onclick="showSection('practise')">
+    <span class="nav-icon">🧩</span>Practise
+  </button>
+  <button onclick="showSection('quiz')">
+    <span class="nav-icon">✏️</span>Quiz
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════ UNDERSTAND ═══════════════════════════════ -->
+<section class="section active" id="understand">
+  <h2 class="section-title">What is Linear Search?</h2>
+  <p class="section-sub">Start here — understand the idea before looking at any code.</p>
+
+  <div class="callout callout-teal">
+    <strong>The idea in one sentence:</strong> Linear search checks each element in an array one by one, starting at the first, until it either finds what it is looking for or reaches the end without finding it.
+    <br><br>
+    Think of it like searching through a pile of flashcards for a specific name — you pick up each card in turn and check it. You stop as soon as you find the right card, or when you've checked them all.
+  </div>
+
+  <div class="concept-strip">
+    <div class="concept-card">
+      <div class="concept-num">1</div>
+      <h4>Start at index 0</h4>
+      <p>Begin at the very first element. Set a counter <code>i ← 0</code> and a flag <code>found ← FALSE</code>.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-num">2</div>
+      <h4>Compare and decide</h4>
+      <p>Check whether <code>arr[i]</code> equals the target value. If it does, record the position and set <code>found ← TRUE</code>.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-num">3</div>
+      <h4>Continue or stop</h4>
+      <p>If no match, move to the next element by adding 1 to <code>i</code>. Stop when a match is found <em>or</em> every element has been checked.</p>
+    </div>
+  </div>
+
+  <!-- ─── ANIMATOR ─── -->
+  <div class="anim-card">
+    <div class="anim-header">
+      <h3>🎬 Step-by-step visualiser</h3>
+      <span>Edit the array and target, then step through the search</span>
+    </div>
+    <div class="anim-body">
+
+      <div class="anim-config">
+        <div class="anim-field">
+          <label>Array values</label>
+          <input class="wide" id="animArr" type="text" value="45, 12, 23, 7, 91, 23, 34">
+        </div>
+        <div class="anim-field">
+          <label>Target value</label>
+          <input class="narrow" id="animTarget" type="number" value="23">
+        </div>
+        <button class="btn btn-ghost" onclick="animInit()" style="margin-bottom:1px;">↺ Reset</button>
+      </div>
+
+      <div class="anim-array-scroll">
+        <div class="anim-array" id="animCells"></div>
+      </div>
+
+      <div class="anim-status" id="animStatus">
+        Press <strong>Next Step</strong> to start the search.
+      </div>
+
+      <div class="anim-vars" id="animVars">
+        <div class="anim-var-pill" id="apill-i">
+          <span class="pill-name">i</span><span class="pill-val" id="apv-i">0</span>
+        </div>
+        <div class="anim-var-pill" id="apill-found">
+          <span class="pill-name">found</span><span class="pill-val" id="apv-found">FALSE</span>
+        </div>
+        <div class="anim-var-pill" id="apill-pos">
+          <span class="pill-name">position</span><span class="pill-val" id="apv-pos">−1</span>
+        </div>
+      </div>
+
+      <div class="anim-controls">
+        <button class="btn btn-teal" id="animNextBtn" onclick="animStep()">▶ Next Step</button>
+        <button class="btn btn-outline" onclick="animRunAll()">▶▶ Run to end</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── FIND FIRST vs COUNT ALL ─── -->
+  <h3 style="font-family:var(--font-head); color:var(--teal); font-size:1.2rem; margin-bottom:14px;">Two approaches you need to know</h3>
+
+  <div class="compare-pair">
+    <div class="compare-card c-find">
+      <span class="compare-tag">Find First</span>
+      <h4>🔍 Stop as soon as you find it</h4>
+      <p>The search <strong>exits immediately</strong> the moment it finds a match. It returns the <strong>index</strong> (position) of the first occurrence, or <code>−1</code> to show the value was not in the array.<br><br>
+      <em>When to use:</em> You want to know <em>if</em> a value is in the array and <em>where</em> it first appears.</p>
+    </div>
+    <div class="compare-card c-count">
+      <span class="compare-tag">Count All</span>
+      <h4>🔢 Go through the whole array</h4>
+      <p>The search <strong>never stops early</strong> — it always checks every single element, counting each match it finds.<br><br>
+      <em>When to use:</em> You want to know <em>how many times</em> a value appears in the array. You can't stop early because there might be more matches.</p>
+    </div>
+  </div>
+
+  <!-- ─── 1D vs 2D ─── -->
+  <hr style="border:none; border-top:2px solid var(--grey-200); margin:28px 0;">
+  <h3 style="font-family:var(--font-head); color:var(--teal); font-size:1.2rem; margin-bottom:14px;">1D arrays and 2D arrays</h3>
+
+  <div class="callout callout-teal" style="margin-bottom:18px;">
+    <strong>1D array:</strong> A single list of values. You access elements with <em>one</em> index: <code>arr[2]</code>.<br>
+    <strong>2D array:</strong> A grid of values (rows and columns). You need <em>two</em> indices: <code>grid[1, 2]</code> means row 1, column 2.<br>
+    To search a 2D array you need <strong>two nested loops</strong> — the outer loop steps through rows, the inner loop steps through columns within each row.
+  </div>
+
+  <div class="compare-pair">
+    <div style="background:var(--white); border:1.5px solid var(--grey-200); border-radius:var(--radius); padding:18px;">
+      <div style="font-family:var(--font-head); font-weight:800; color:var(--teal); font-size:0.9rem; margin-bottom:12px;">1D Array — one index, one loop</div>
+      <div class="array-diagram">
+        <div class="arr-cell"><div class="idx">[0]</div><div class="val">10</div></div>
+        <div class="arr-cell"><div class="idx">[1]</div><div class="val">25</div></div>
+        <div class="arr-cell"><div class="idx">[2]</div><div class="val">7</div></div>
+        <div class="arr-cell"><div class="idx">[3]</div><div class="val">42</div></div>
+        <div class="arr-cell"><div class="idx">[4]</div><div class="val">18</div></div>
+      </div>
+      <p style="font-size:0.82rem; color:var(--grey-700); margin-top:10px; line-height:1.6;">Access with <code>arr[i]</code>. One <code>FOR</code> or <code>WHILE</code> loop checks each element.</p>
+    </div>
+    <div style="background:var(--white); border:1.5px solid var(--grey-200); border-radius:var(--radius); padding:18px;">
+      <div style="font-family:var(--font-head); font-weight:800; color:var(--teal); font-size:0.9rem; margin-bottom:12px;">2D Array — two indices, two nested loops</div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; gap:4px;">
+          <div class="arr-cell"><div class="idx">[0,0]</div><div class="val">10</div></div>
+          <div class="arr-cell"><div class="idx">[0,1]</div><div class="val">25</div></div>
+          <div class="arr-cell"><div class="idx">[0,2]</div><div class="val">7</div></div>
+        </div>
+        <div style="display:flex; gap:4px;">
+          <div class="arr-cell"><div class="idx">[1,0]</div><div class="val">42</div></div>
+          <div class="arr-cell"><div class="idx">[1,1]</div><div class="val">18</div></div>
+          <div class="arr-cell"><div class="idx">[1,2]</div><div class="val">9</div></div>
+        </div>
+      </div>
+      <p style="font-size:0.82rem; color:var(--grey-700); margin-top:10px; line-height:1.6;">Access with <code>grid[row, col]</code>. Outer loop for rows, inner loop for columns.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-amber">
+    <strong>Important — 2D search:</strong> When you find a match in a 2D array, you must record <em>both</em> the row and the column. A single number is not enough to describe where an element is in a grid.
+  </div>
+
+  <!-- ─── QUICK PSEUDOCODE RULES ─── -->
+  <h3 style="font-family:var(--font-head); color:var(--teal); font-size:1.2rem; margin:28px 0 14px;">Key pseudocode rules for 0478</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+    <div class="callout callout-teal" style="margin-bottom:0;">
+      <strong>No BREAK statement</strong><br>
+      IGCSE pseudocode has no way to jump out of a loop early. Instead, use a <code>found</code> flag and a <code>WHILE</code> loop — the loop condition checks <code>found = FALSE</code> so it stops automatically.
+    </div>
+    <div class="callout callout-teal" style="margin-bottom:0;">
+      <strong>String comparison</strong><br>
+      Use <code>=</code> to compare two STRING values — the same operator as for numbers. No special method or function is needed in Cambridge pseudocode.
+    </div>
+    <div class="callout callout-teal" style="margin-bottom:0;">
+      <strong>Array bounds</strong><br>
+      Declare arrays as <code>ARRAY[0:n] OF TYPE</code>. The lower bound is 0 and the upper bound is the last valid index. A 5-element array is <code>ARRAY[0:4]</code>.
+    </div>
+    <div class="callout callout-teal" style="margin-bottom:0;">
+      <strong>−1 as "not found"</strong><br>
+      Initialise <code>position ← −1</code> before the loop. If the loop finishes and position is still −1, the value was never found. Valid indices are always 0 or greater.
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════ CODE ═══════════════════════════════════ -->
+<section class="section" id="code">
+  <h2 class="section-title">Code Reference</h2>
+  <p class="section-sub">Choose your language, approach, and array type.</p>
+
+  <div class="tab-label">Language</div>
+  <div class="tabs" id="lang-tabs">
+    <button class="active" onclick="switchLang('ps')">Cambridge Pseudocode</button>
+    <button onclick="switchLang('java')">Java</button>
+  </div>
+
+  <!-- ─────── PSEUDOCODE ─────── -->
+  <div class="lang-panel active" id="lp-ps">
+
+    <div class="tab-label">Approach</div>
+    <div class="tabs" id="ps-app-tabs">
+      <button class="active" onclick="switchApp('ps','ff')">🔍 Find First</button>
+      <button onclick="switchApp('ps','ca')">🔢 Count All</button>
+      <button onclick="switchApp('ps','td')">📋 2D Search</button>
+    </div>
+
+    <!-- Find First -->
+    <div class="app-panel active" id="ps-ff">
+      <div class="tab-label">Array type</div>
+      <div class="tabs" id="ps-ff-tabs">
+        <button class="active" onclick="switchArr('ps','ff','int')">Integer</button>
+        <button onclick="switchArr('ps','ff','str')">String</button>
+      </div>
+      <div class="arr-panel active" id="ps-ff-int">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔍 Find First — 1D Integer Array</h3><span>WHILE loop + found flag</span></div>
+          <pre id="c-ps-ff-int"></pre>
+        </div>
+        <div class="callout callout-teal">
+          <strong>Why WHILE instead of FOR?</strong> We want to <em>stop early</em> once we find a match. Cambridge pseudocode has no <code>BREAK</code>, so we use a <code>WHILE</code> loop with the condition <code>i &lt; 7 AND found = FALSE</code>. The moment <code>found</code> becomes <code>TRUE</code>, the condition fails and the loop stops — we never check the rest of the array.
+        </div>
+      </div>
+      <div class="arr-panel" id="ps-ff-str">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔍 Find First — 1D String Array</h3><span>WHILE loop + found flag</span></div>
+          <pre id="c-ps-ff-str"></pre>
+        </div>
+        <div class="callout callout-teal">
+          <strong>Comparing strings in pseudocode:</strong> Use the <code>=</code> operator — exactly the same as comparing integers. There is no need for any special method or function.
+        </div>
+      </div>
+    </div>
+
+    <!-- Count All -->
+    <div class="app-panel" id="ps-ca">
+      <div class="tab-label">Array type</div>
+      <div class="tabs" id="ps-ca-tabs">
+        <button class="active" onclick="switchArr('ps','ca','int')">Integer</button>
+        <button onclick="switchArr('ps','ca','str')">String</button>
+      </div>
+      <div class="arr-panel active" id="ps-ca-int">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔢 Count All — 1D Integer Array</h3><span>FOR loop — no early exit</span></div>
+          <pre id="c-ps-ca-int"></pre>
+        </div>
+        <div class="callout callout-amber">
+          <strong>Why FOR instead of WHILE?</strong> A Count All search <em>must</em> visit every element — we cannot stop early because there might be more matches further on. A <code>FOR</code> loop is perfect here because we know exactly how many iterations are needed: one for each element.
+        </div>
+      </div>
+      <div class="arr-panel" id="ps-ca-str">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔢 Count All — 1D String Array</h3><span>FOR loop — no early exit</span></div>
+          <pre id="c-ps-ca-str"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2D Search -->
+    <div class="app-panel" id="ps-td">
+      <div class="tab-label">Array type</div>
+      <div class="tabs" id="ps-td-tabs">
+        <button class="active" onclick="switchArr('ps','td','int')">Integer</button>
+        <button onclick="switchArr('ps','td','str')">String</button>
+      </div>
+      <div class="arr-panel active" id="ps-td-int">
+        <div class="code-card">
+          <div class="code-card-head"><h3>📋 2D Search — Integer Array</h3><span>Nested FOR loops + found flag</span></div>
+          <pre id="c-ps-td-int"></pre>
+        </div>
+        <div class="callout callout-teal">
+          <strong>How the <code>found</code> flag stops overwriting:</strong> Once <code>found ← TRUE</code>, the condition <code>... AND found = FALSE</code> inside the <code>IF</code> can never be true again. This means the row and column stored when the first match was found are never changed by later iterations of the loops.
+        </div>
+      </div>
+      <div class="arr-panel" id="ps-td-str">
+        <div class="code-card">
+          <div class="code-card-head"><h3>📋 2D Search — String Array</h3><span>Nested FOR loops + found flag</span></div>
+          <pre id="c-ps-td-str"></pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end lp-ps -->
+
+  <!-- ─────── JAVA ─────── -->
+  <div class="lang-panel" id="lp-java">
+
+    <div class="tab-label">Approach</div>
+    <div class="tabs" id="java-app-tabs">
+      <button class="active" onclick="switchApp('java','ff')">🔍 Find First</button>
+      <button onclick="switchApp('java','ca')">🔢 Count All</button>
+      <button onclick="switchApp('java','td')">📋 2D Search</button>
+    </div>
+
+    <!-- Find First -->
+    <div class="app-panel active" id="java-ff">
+      <div class="tab-label">Array type</div>
+      <div class="tabs" id="java-ff-tabs">
+        <button class="active" onclick="switchArr('java','ff','int')">Integer</button>
+        <button onclick="switchArr('java','ff','str')">String</button>
+      </div>
+      <div class="arr-panel active" id="java-ff-int">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔍 Find First — 1D Integer Array</h3><span>for loop + break</span></div>
+          <pre id="c-java-ff-int"></pre>
+        </div>
+        <div class="callout callout-green">
+          <strong>Java vs pseudocode:</strong> Unlike pseudocode, Java has a <code>break</code> statement which exits a loop immediately. This means we can use a simple <code>for</code> loop and <code>break</code> the moment we find a match — without needing a separate <code>found</code> flag to control the loop condition.
+        </div>
+      </div>
+      <div class="arr-panel" id="java-ff-str">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔍 Find First — 1D String Array</h3><span>for loop + break + .equals()</span></div>
+          <pre id="c-java-ff-str"></pre>
+        </div>
+        <div class="callout callout-green">
+          <strong>Comparing strings in Java:</strong> Always use <code>.equals()</code> — never <code>==</code>. The <code>==</code> operator checks whether two variables point to the same object in memory, not whether their contents are the same. <code>.equals()</code> compares the actual characters.
+        </div>
+      </div>
+    </div>
+
+    <!-- Count All -->
+    <div class="app-panel" id="java-ca">
+      <div class="tab-label">Array type</div>
+      <div class="tabs" id="java-ca-tabs">
+        <button class="active" onclick="switchArr('java','ca','int')">Integer</button>
+        <button onclick="switchArr('java','ca','str')">String</button>
+      </div>
+      <div class="arr-panel active" id="java-ca-int">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔢 Count All — 1D Integer Array</h3><span>for loop — no break</span></div>
+          <pre id="c-java-ca-int"></pre>
+        </div>
+      </div>
+      <div class="arr-panel" id="java-ca-str">
+        <div class="code-card">
+          <div class="code-card-head"><h3>🔢 Count All — 1D String Array</h3><span>for loop — no break</span></div>
+          <pre id="c-java-ca-str"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2D Search -->
+    <div class="app-panel" id="java-td">
+      <div class="tab-label">Array type</div>
+      <div class="tabs" id="java-td-tabs">
+        <button class="active" onclick="switchArr('java','td','int')">Integer</button>
+        <button onclick="switchArr('java','td','str')">String</button>
+      </div>
+      <div class="arr-panel active" id="java-td-int">
+        <div class="code-card">
+          <div class="code-card-head"><h3>📋 2D Search — Integer Array</h3><span>nested for loops + labelled break</span></div>
+          <pre id="c-java-td-int"></pre>
+        </div>
+        <div class="callout callout-green">
+          <strong>Labelled break in Java:</strong> A plain <code>break</code> only exits the <em>inner</em> loop. To exit both loops at once, we label the outer loop (<code>outer:</code>) and write <code>break outer</code> — this jumps out of both loops immediately when a match is found.
+        </div>
+      </div>
+      <div class="arr-panel" id="java-td-str">
+        <div class="code-card">
+          <div class="code-card-head"><h3>📋 2D Search — String Array</h3><span>nested for loops + labelled break + .equals()</span></div>
+          <pre id="c-java-td-str"></pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end lp-java -->
+</section>
+
+
+<!-- ═══════════════════════════════════ PRACTISE ═══════════════════════════════════ -->
+<section class="section" id="practise">
+  <h2 class="section-title">Parson's Problem</h2>
+  <p class="section-sub">Drag the code blocks from the left box into the correct order on the right. All blocks are shuffled randomly.</p>
+
+  <div class="tab-label">Language</div>
+  <div class="tabs" id="p-lang-tabs">
+    <button class="active" onclick="switchPLang('ps')">Cambridge Pseudocode</button>
+    <button onclick="switchPLang('java')">Java</button>
+  </div>
+  <div class="tab-label" style="margin-top:0;">Approach</div>
+  <div class="tabs" id="p-app-tabs" style="margin-top:4px; margin-bottom:0;">
+    <button class="active" onclick="switchPApp('ff')">🔍 Find First</button>
+    <button onclick="switchPApp('ca')">🔢 Count All</button>
+    <button onclick="switchPApp('td')">📋 2D Search</button>
+  </div>
+  <div class="tab-label" style="margin-top:6px;">Array type</div>
+  <div class="tabs" id="p-arr-tabs" style="margin-top:4px; margin-bottom:16px;">
+    <button class="active" onclick="switchPArr('int')">Integer</button>
+    <button onclick="switchPArr('str')">String</button>
+  </div>
+
+  <div class="parsons-puzzle-tag" id="p-tag">
+    Puzzle: <strong id="p-tag-text">Pseudocode · Find First · Integer</strong>
+  </div>
+
+  <div class="parsons-wrap">
+    <div class="parsons-zone" id="p-bank"><h4>📦 Code Bank — drag from here</h4></div>
+    <div class="parsons-zone drop-active" id="p-answer"><h4>✏️ Your Answer — drop here in order</h4></div>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+    <button class="btn btn-teal"    onclick="checkParsons()">Check Answer</button>
+    <button class="btn btn-outline" onclick="resetParsons()">Reset</button>
+    <button class="btn btn-ghost"   onclick="revealParsons()">Reveal Solution</button>
+  </div>
+
+  <div class="parsons-feedback" id="p-feedback"></div>
+  <div class="progress-bar-wrap" id="p-progress-wrap" style="display:none;">
+    <div class="progress-bar" id="p-progress-bar" style="width:0%"></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════ QUIZ ═══════════════════════════════════ -->
+<section class="section" id="quiz">
+  <h2 class="section-title">Self-Marking Quiz</h2>
+  <p class="section-sub">3 questions chosen at random from a bank of 10. Submit for instant feedback with explanations.</p>
+
+  <div class="quiz-list" id="quizContainer"></div>
+
+  <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap; align-items:center;">
+    <button class="btn btn-teal"  onclick="submitQuiz()">Submit All</button>
+    <button class="btn btn-ghost" onclick="buildQuiz()">New Questions</button>
+    <div id="quizScore" style="margin-left:auto; font-weight:800; font-size:0.9rem; display:none;"></div>
+  </div>
+</section>
+
+
+<footer>
+  <strong>Cambridge IGCSE Computer Science 0478</strong> — Linear Search Interactive Resource — &copy Crimson Global Academy 2026
+</footer>
+
+
+<script>
+// ═══════════════════════════════════ NAVIGATION
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  ['understand','code','practise','quiz'].forEach((s,i) => {
+    if (s === id) document.querySelectorAll('.main-nav button')[i].classList.add('active');
+  });
+}
+
+// ═══════════════════════════════════ CODE TABS
+function switchLang(lang) {
+  ['ps','java'].forEach(l => {
+    document.getElementById('lp-' + l).classList.toggle('active', l === lang);
+  });
+  document.querySelectorAll('#lang-tabs button').forEach((b,i) =>
+    b.classList.toggle('active', ['ps','java'][i] === lang));
+}
+
+function switchApp(prefix, app) {
+  const panel = document.getElementById('lp-' + prefix);
+  panel.querySelectorAll('.app-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(prefix + '-' + app).classList.add('active');
+  const tabId = prefix + '-app-tabs';
+  document.getElementById(tabId).querySelectorAll('button').forEach((b,i) =>
+    b.classList.toggle('active', ['ff','ca','td'][i] === app));
+}
+
+function switchArr(prefix, app, type) {
+  const panel = document.getElementById(prefix + '-' + app);
+  panel.querySelectorAll('.arr-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(prefix + '-' + app + '-' + type).classList.add('active');
+  const tabId = prefix + '-' + app + '-tabs';
+  document.getElementById(tabId).querySelectorAll('button').forEach((b,i) =>
+    b.classList.toggle('active', ['int','str'][i] === type));
+}
+
+// ═══════════════════════════════════ CODE STRINGS
+const codeStrings = {
+  'ps-ff-int': `// Linear Search — Find First Occurrence
+// 1D INTEGER array   (IGCSE 0478 pseudocode)
+DECLARE arr      : ARRAY[0:6] OF INTEGER
+arr ← {45, 12, 23, 7, 91, 23, 34}
+DECLARE target   : INTEGER
+target ← 23
+DECLARE found    : BOOLEAN
+DECLARE position : INTEGER
+DECLARE i        : INTEGER
+
+found    ← FALSE
+position ← -1       // -1 means "not found yet"
+i        ← 0
+
+WHILE i < 7 AND found = FALSE DO
+    IF arr[i] = target THEN
+        found    ← TRUE
+        position ← i    // remember where we found it
+    ENDIF
+    i ← i + 1
+ENDWHILE
+
+IF found = TRUE THEN
+    OUTPUT "Found at index ", position
+ELSE
+    OUTPUT target, " is not in the array"
+ENDIF`,
+
+  'ps-ff-str': `// Linear Search — Find First Occurrence
+// 1D STRING array   (IGCSE 0478 pseudocode)
+DECLARE names    : ARRAY[0:4] OF STRING
+names ← {"Alice", "Ben", "Zara", "Omar", "Zara"}
+DECLARE target   : STRING
+target ← "Zara"
+DECLARE found    : BOOLEAN
+DECLARE position : INTEGER
+DECLARE i        : INTEGER
+
+found    ← FALSE
+position ← -1
+i        ← 0
+
+WHILE i < 5 AND found = FALSE DO
+    IF names[i] = target THEN    // = works for STRING
+        found    ← TRUE
+        position ← i
+    ENDIF
+    i ← i + 1
+ENDWHILE
+
+IF found = TRUE THEN
+    OUTPUT "Found at index ", position
+ELSE
+    OUTPUT target, " is not in the array"
+ENDIF`,
+
+  'ps-ca-int': `// Linear Search — Count All Occurrences
+// 1D INTEGER array   (IGCSE 0478 pseudocode)
+DECLARE scores  : ARRAY[0:6] OF INTEGER
+scores ← {45, 12, 23, 7, 23, 23, 34}
+DECLARE target  : INTEGER
+target ← 23
+DECLARE count   : INTEGER
+count ← 0
+
+FOR i ← 0 TO 6
+    IF scores[i] = target THEN
+        count ← count + 1   // add 1 for each match
+    ENDIF
+NEXT i
+// The loop always runs to the end
+// because there might be more matches later
+
+OUTPUT target, " appears ", count, " time(s)"`,
+
+  'ps-ca-str': `// Linear Search — Count All Occurrences
+// 1D STRING array   (IGCSE 0478 pseudocode)
+DECLARE items   : ARRAY[0:5] OF STRING
+items ← {"cat", "dog", "cat", "bird", "cat", "fish"}
+DECLARE target  : STRING
+target ← "cat"
+DECLARE count   : INTEGER
+count ← 0
+
+FOR i ← 0 TO 5
+    IF items[i] = target THEN
+        count ← count + 1
+    ENDIF
+NEXT i
+
+OUTPUT target, " appears ", count, " time(s)"`,
+
+  'ps-td-int': `// Linear Search — 2D INTEGER Array
+// Two nested FOR loops; found flag stops overwriting
+DECLARE grid     : ARRAY[0:2, 0:2] OF INTEGER
+DECLARE target   : INTEGER
+target ← 42
+DECLARE found    : BOOLEAN
+DECLARE foundRow : INTEGER
+DECLARE foundCol : INTEGER
+
+found    ← FALSE
+foundRow ← -1
+foundCol ← -1
+
+FOR row ← 0 TO 2
+    FOR col ← 0 TO 2
+        IF grid[row, col] = target AND found = FALSE THEN
+            found    ← TRUE
+            foundRow ← row
+            foundCol ← col
+        ENDIF
+    NEXT col
+NEXT row
+
+IF found = TRUE THEN
+    OUTPUT "Found at row ", foundRow, ", column ", foundCol
+ELSE
+    OUTPUT target, " is not in the grid"
+ENDIF`,
+
+  'ps-td-str': `// Linear Search — 2D STRING Array
+DECLARE grid     : ARRAY[0:2, 0:2] OF STRING
+DECLARE target   : STRING
+target ← "mango"
+DECLARE found    : BOOLEAN
+DECLARE foundRow : INTEGER
+DECLARE foundCol : INTEGER
+
+found    ← FALSE
+foundRow ← -1
+foundCol ← -1
+
+FOR row ← 0 TO 2
+    FOR col ← 0 TO 2
+        IF grid[row, col] = target AND found = FALSE THEN
+            found    ← TRUE
+            foundRow ← row
+            foundCol ← col
+        ENDIF
+    NEXT col
+NEXT row
+
+IF found = TRUE THEN
+    OUTPUT "Found at row ", foundRow, ", column ", foundCol
+ELSE
+    OUTPUT target, " is not in the grid"
+ENDIF`,
+
+  'java-ff-int': `// Linear Search - Find First Occurrence
+// 1D integer array (Java)
+int[] scores   = {45, 12, 23, 7, 91, 23, 34};
+int   target   = 23;
+int   position = -1;   // -1 means "not found yet"
+
+for (int i = 0; i < scores.length; i++) {
+    if (scores[i] == target) {
+        position = i;
+        break;   // stop immediately - no need to keep looking
+    }
+}
+
+if (position != -1) {
+    System.out.println("Found at index " + position);
+} else {
+    System.out.println(target + " is not in the array");
+}`,
+
+  'java-ff-str': `// Linear Search - Find First Occurrence
+// 1D String array (Java)
+String[] names    = {"Alice", "Ben", "Zara", "Omar", "Zara"};
+String   target   = "Zara";
+int      position = -1;
+
+for (int i = 0; i < names.length; i++) {
+    if (names[i].equals(target)) {   // use .equals() for Strings
+        position = i;
+        break;
+    }
+}
+
+if (position != -1) {
+    System.out.println("Found at index " + position);
+} else {
+    System.out.println(target + " is not in the array");
+}`,
+
+  'java-ca-int': `// Linear Search - Count All Occurrences
+// 1D integer array (Java)
+// for loop visits every element - no break allowed
+int[] scores = {45, 12, 23, 7, 23, 23, 34};
+int   target = 23;
+int   count  = 0;
+
+for (int i = 0; i < scores.length; i++) {
+    if (scores[i] == target) {
+        count++;   // add 1 for each match
+    }
+}
+// Loop always runs to the end
+
+System.out.println(target + " appears " + count + " time(s)");`,
+
+  'java-ca-str': `// Linear Search - Count All Occurrences
+// 1D String array (Java)
+String[] items  = {"cat", "dog", "cat", "bird", "cat", "fish"};
+String   target = "cat";
+int      count  = 0;
+
+for (int i = 0; i < items.length; i++) {
+    if (items[i].equals(target)) {   // .equals() for Strings
+        count++;
+    }
+}
+
+System.out.println(target + " appears " + count + " time(s)");`,
+
+  'java-td-int': `// Linear Search - 2D integer array (Java)
+// Outer loop for rows, inner loop for columns
+// Labelled break exits both loops at once
+int[][] grid = {
+    {10, 25, 42},
+    { 7, 18,  9},
+    {33, 61,  5}
+};
+int target   = 42;
+int foundRow = -1;
+int foundCol = -1;
+
+outer:                            // label for the outer loop
+for (int row = 0; row < grid.length; row++) {
+    for (int col = 0; col < grid[row].length; col++) {
+        if (grid[row][col] == target) {
+            foundRow = row;
+            foundCol = col;
+            break outer;          // exits BOTH loops at once
+        }
+    }
+}
+
+if (foundRow != -1) {
+    System.out.println("Found at [" + foundRow + "][" + foundCol + "]");
+} else {
+    System.out.println(target + " is not in the grid");
+}`,
+
+  'java-td-str': `// Linear Search - 2D String array (Java)
+String[][] grid = {
+    {"apple", "mango", "pear"},
+    {"grape", "mango", "plum"},
+    {"lime",  "lemon", "kiwi"}
+};
+String target   = "mango";
+int    foundRow = -1;
+int    foundCol = -1;
+
+outer:
+for (int row = 0; row < grid.length; row++) {
+    for (int col = 0; col < grid[row].length; col++) {
+        if (grid[row][col].equals(target)) {   // .equals() for Strings
+            foundRow = row;
+            foundCol = col;
+            break outer;
+        }
+    }
+}
+
+if (foundRow != -1) {
+    System.out.println("Found at [" + foundRow + "][" + foundCol + "]");
+} else {
+    System.out.println(target + " is not in the grid");
+}`
+};
+
+function renderCode() {
+  for (const [id, code] of Object.entries(codeStrings)) {
+    const el = document.getElementById('c-' + id);
+    if (el) el.textContent = code;
+  }
+}
+
+// ═══════════════════════════════════ ANIMATOR
+let animData  = [], animTarget = 0, animPtr = 0, animDone = false;
+
+function animInit() {
+  const raw = document.getElementById('animArr').value;
+  animData   = raw.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  animTarget = parseInt(document.getElementById('animTarget').value) || 0;
+  animPtr    = 0;
+  animDone   = false;
+
+  // Build cell display
+  const wrap = document.getElementById('animCells');
+  wrap.innerHTML = '';
+  animData.forEach((v, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'anim-slot';
+    slot.innerHTML = `<div class="anim-label">[${i}]</div><div class="anim-box state-idle" id="ab-${i}">${v}</div>`;
+    wrap.appendChild(slot);
+  });
+
+  setStatus('', `Press <strong>Next Step</strong> to begin. We are searching for <strong>${animTarget}</strong>.`);
+  setPill('apv-i', '0');
+  setPill('apv-found', 'FALSE');
+  setPill('apv-pos', '−1');
+  document.getElementById('animNextBtn').disabled = false;
+}
+
+function setStatus(cls, html) {
+  const el = document.getElementById('animStatus');
+  el.className = 'anim-status' + (cls ? ' ' + cls : '');
+  el.innerHTML = html;
+}
+
+function setPill(id, val, changed = false) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+  const pill = el ? el.closest('.anim-var-pill') : null;
+  if (pill && changed) {
+    pill.classList.add('changed');
+    setTimeout(() => pill.classList.remove('changed'), 650);
+  }
+}
+
+function animStep() {
+  if (animDone) return;
+  const n = animData.length;
+
+  // Clear previous checking highlight (not found/done)
+  document.querySelectorAll('.anim-box').forEach(b => {
+    if (!b.classList.contains('state-found') && !b.classList.contains('state-done'))
+      b.className = 'anim-box state-idle';
+  });
+
+  if (animPtr >= n) {
+    // All checked, not found
+    animDone = true;
+    document.querySelectorAll('.anim-box').forEach(b => {
+      if (!b.classList.contains('state-found')) b.className = 'anim-box state-missed';
+    });
+    setStatus('s-miss', `❌ All ${n} elements have been checked. <strong>${animTarget}</strong> is not in the array.`);
+    document.getElementById('animNextBtn').disabled = true;
+    return;
+  }
+
+  const box = document.getElementById('ab-' + animPtr);
+  box.className = 'anim-box state-checking';
+  setPill('apv-i', String(animPtr), true);
+
+  if (animData[animPtr] === animTarget) {
+    // Match found
+    animDone = true;
+    box.className = 'anim-box state-found';
+    setStatus('s-found', `✅ Match! <strong>arr[${animPtr}] = ${animData[animPtr]}</strong> equals the target <strong>${animTarget}</strong>. Search complete.`);
+    setPill('apv-found', 'TRUE', true);
+    setPill('apv-pos', String(animPtr), true);
+    document.getElementById('animNextBtn').disabled = true;
+  } else {
+    setStatus('s-check', `🔍 Checking index <strong>${animPtr}</strong>: arr[${animPtr}] = <strong>${animData[animPtr]}</strong> — not equal to <strong>${animTarget}</strong>. Move on.`);
+    setTimeout(() => {
+      const b2 = document.getElementById('ab-' + animPtr);
+      if (b2) b2.className = 'anim-box state-done';
+    }, 300);
+    animPtr++;
+    setPill('apv-i', String(animPtr));
+  }
+}
+
+function animRunAll() {
+  if (animDone) animInit();
+  const tick = () => { if (!animDone) { animStep(); setTimeout(tick, 500); } };
+  tick();
+}
+
+// ═══════════════════════════════════ PARSONS DATA
+const parsonsData = {
+  ps: {
+    ff: {
+      int: [
+        'found    \u2190 FALSE',
+        'position \u2190 -1',
+        'i        \u2190 0',
+        'WHILE i < 7 AND found = FALSE DO',
+        '    IF arr[i] = target THEN',
+        '        found    \u2190 TRUE',
+        '        position \u2190 i',
+        '    ENDIF',
+        '    i \u2190 i + 1',
+        'ENDWHILE',
+        'IF found = TRUE THEN',
+        '    OUTPUT "Found at index ", position',
+        'ELSE',
+        '    OUTPUT "Not found"',
+        'ENDIF'
+      ],
+      str: [
+        'found    \u2190 FALSE',
+        'position \u2190 -1',
+        'i        \u2190 0',
+        'WHILE i < 5 AND found = FALSE DO',
+        '    IF names[i] = target THEN',
+        '        found    \u2190 TRUE',
+        '        position \u2190 i',
+        '    ENDIF',
+        '    i \u2190 i + 1',
+        'ENDWHILE',
+        'IF found = TRUE THEN',
+        '    OUTPUT "Found at index ", position',
+        'ELSE',
+        '    OUTPUT "Not found"',
+        'ENDIF'
+      ]
+    },
+    ca: {
+      int: [
+        'count \u2190 0',
+        'FOR i \u2190 0 TO 6',
+        '    IF scores[i] = target THEN',
+        '        count \u2190 count + 1',
+        '    ENDIF',
+        'NEXT i',
+        'OUTPUT target, " appears ", count, " time(s)"'
+      ],
+      str: [
+        'count \u2190 0',
+        'FOR i \u2190 0 TO 5',
+        '    IF items[i] = target THEN',
+        '        count \u2190 count + 1',
+        '    ENDIF',
+        'NEXT i',
+        'OUTPUT target, " appears ", count, " time(s)"'
+      ]
+    },
+    td: {
+      int: [
+        'found    \u2190 FALSE',
+        'foundRow \u2190 -1',
+        'foundCol \u2190 -1',
+        'FOR row \u2190 0 TO 2',
+        '    FOR col \u2190 0 TO 2',
+        '        IF grid[row, col] = target AND found = FALSE THEN',
+        '            found    \u2190 TRUE',
+        '            foundRow \u2190 row',
+        '            foundCol \u2190 col',
+        '        ENDIF',
+        '    NEXT col',
+        'NEXT row',
+        'IF found = TRUE THEN',
+        '    OUTPUT "Found at row ", foundRow, " col ", foundCol',
+        'ELSE',
+        '    OUTPUT "Not found"',
+        'ENDIF'
+      ],
+      str: [
+        'found    \u2190 FALSE',
+        'foundRow \u2190 -1',
+        'foundCol \u2190 -1',
+        'FOR row \u2190 0 TO 2',
+        '    FOR col \u2190 0 TO 2',
+        '        IF grid[row, col] = target AND found = FALSE THEN',
+        '            found    \u2190 TRUE',
+        '            foundRow \u2190 row',
+        '            foundCol \u2190 col',
+        '        ENDIF',
+        '    NEXT col',
+        'NEXT row',
+        'IF found = TRUE THEN',
+        '    OUTPUT "Found at row ", foundRow, " col ", foundCol',
+        'ELSE',
+        '    OUTPUT "Not found"',
+        'ENDIF'
+      ]
+    }
+  },
+  java: {
+    ff: {
+      int: [
+        'int position = -1;',
+        'for (int i = 0; i < scores.length; i++) {',
+        '    if (scores[i] == target) {',
+        '        position = i;',
+        '        break;',
+        '    }',
+        '}',
+        'if (position != -1) {',
+        '    System.out.println("Found at index " + position);',
+        '} else {',
+        '    System.out.println("Not found");',
+        '}'
+      ],
+      str: [
+        'int position = -1;',
+        'for (int i = 0; i < names.length; i++) {',
+        '    if (names[i].equals(target)) {',
+        '        position = i;',
+        '        break;',
+        '    }',
+        '}',
+        'if (position != -1) {',
+        '    System.out.println("Found at index " + position);',
+        '} else {',
+        '    System.out.println("Not found");',
+        '}'
+      ]
+    },
+    ca: {
+      int: [
+        'int count = 0;',
+        'for (int i = 0; i < scores.length; i++) {',
+        '    if (scores[i] == target) {',
+        '        count++;',
+        '    }',
+        '}',
+        'System.out.println(target + " appears " + count + " time(s)");'
+      ],
+      str: [
+        'int count = 0;',
+        'for (int i = 0; i < items.length; i++) {',
+        '    if (items[i].equals(target)) {',
+        '        count++;',
+        '    }',
+        '}',
+        'System.out.println(target + " appears " + count + " time(s)");'
+      ]
+    },
+    td: {
+      int: [
+        'int foundRow = -1;',
+        'int foundCol = -1;',
+        'outer:',
+        'for (int row = 0; row < grid.length; row++) {',
+        '    for (int col = 0; col < grid[row].length; col++) {',
+        '        if (grid[row][col] == target) {',
+        '            foundRow = row;',
+        '            foundCol = col;',
+        '            break outer;',
+        '        }',
+        '    }',
+        '}',
+        'if (foundRow != -1) {',
+        '    System.out.println("Found at [" + foundRow + "][" + foundCol + "]");',
+        '} else {',
+        '    System.out.println("Not found");',
+        '}'
+      ],
+      str: [
+        'int foundRow = -1;',
+        'int foundCol = -1;',
+        'outer:',
+        'for (int row = 0; row < grid.length; row++) {',
+        '    for (int col = 0; col < grid[row].length; col++) {',
+        '        if (grid[row][col].equals(target)) {',
+        '            foundRow = row;',
+        '            foundCol = col;',
+        '            break outer;',
+        '        }',
+        '    }',
+        '}',
+        'if (foundRow != -1) {',
+        '    System.out.println("Found at [" + foundRow + "][" + foundCol + "]");',
+        '} else {',
+        '    System.out.println("Not found");',
+        '}'
+      ]
+    }
+  }
+};
+
+// ═══════════════════════════════════ PARSONS STATE
+let pLang = 'ps', pApp = 'ff', pArr = 'int';
+let dragSrc = null;
+
+function switchPLang(l) {
+  pLang = l;
+  document.querySelectorAll('#p-lang-tabs button').forEach((b,i) =>
+    b.classList.toggle('active', ['ps','java'][i] === l));
+  buildParsons();
+}
+function switchPApp(a) {
+  pApp = a;
+  document.querySelectorAll('#p-app-tabs button').forEach((b,i) =>
+    b.classList.toggle('active', ['ff','ca','td'][i] === a));
+  buildParsons();
+}
+function switchPArr(a) {
+  pArr = a;
+  document.querySelectorAll('#p-arr-tabs button').forEach((b,i) =>
+    b.classList.toggle('active', ['int','str'][i] === a));
+  buildParsons();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function updatePuzzleTag() {
+  const ln = pLang === 'ps' ? 'Pseudocode' : 'Java';
+  const an = { ff: 'Find First', ca: 'Count All', td: '2D Search' }[pApp];
+  const tn = pArr === 'int' ? 'Integer' : 'String';
+  document.getElementById('p-tag-text').textContent = `${ln} · ${an} · ${tn}`;
+}
+
+function buildParsons() {
+  updatePuzzleTag();
+  const lines    = parsonsData[pLang][pApp][pArr];
+  const shuffled = shuffle(lines);
+
+  const bank   = document.getElementById('p-bank');
+  const answer = document.getElementById('p-answer');
+  bank.innerHTML   = '<h4>📦 Code Bank — drag from here</h4>';
+  answer.innerHTML = '<h4>✏️ Your Answer — drop here in order</h4>';
+
+  shuffled.forEach(line => bank.appendChild(makeItem(line)));
+
+  document.getElementById('p-feedback').className = 'parsons-feedback';
+  document.getElementById('p-progress-wrap').style.display = 'none';
+  document.getElementById('p-progress-bar').style.width = '0%';
+
+  setupZone(bank);
+  setupZone(answer);
+}
+
+function makeItem(text) {
+  const d = document.createElement('div');
+  d.className   = 'parsons-item';
+  d.textContent = text;
+  d.draggable   = true;
+  d.addEventListener('dragstart', e => { dragSrc = d; d.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+  d.addEventListener('dragend',   () => d.classList.remove('dragging'));
+  d.addEventListener('dragover',  e => { e.preventDefault(); d.classList.add('drag-over'); });
+  d.addEventListener('dragleave', () => d.classList.remove('drag-over'));
+  d.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation();
+    d.classList.remove('drag-over');
+    if (dragSrc && dragSrc !== d) d.parentNode.insertBefore(dragSrc, d);
+  });
+  return d;
+}
+
+function setupZone(zone) {
+  zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('drop',     e => { e.preventDefault(); if (dragSrc) zone.appendChild(dragSrc); });
+}
+
+function checkParsons() {
+  const correct = parsonsData[pLang][pApp][pArr];
+  const items   = document.getElementById('p-answer').querySelectorAll('.parsons-item');
+  let score = 0;
+  items.forEach((item, idx) => {
+    item.classList.remove('correct','incorrect');
+    const ok = idx < correct.length && item.textContent === correct[idx];
+    item.classList.add(ok ? 'correct' : 'incorrect');
+    if (ok) score++;
+  });
+  const pct = items.length > 0 ? Math.round((score / correct.length) * 100) : 0;
+  document.getElementById('p-progress-wrap').style.display = 'block';
+  setTimeout(() => { document.getElementById('p-progress-bar').style.width = pct + '%'; }, 50);
+  const fb = document.getElementById('p-feedback');
+  if (score === correct.length && items.length === correct.length) {
+    fb.textContent = `✅ Well done! All ${correct.length} lines are in the correct order.`;
+    fb.className = 'parsons-feedback show pass';
+  } else {
+    fb.textContent = `${score} out of ${correct.length} lines correct (${pct}%). Lines in red are in the wrong position — have another go!`;
+    fb.className = 'parsons-feedback show fail';
+  }
+}
+
+function resetParsons() { buildParsons(); }
+
+function revealParsons() {
+  const correct = parsonsData[pLang][pApp][pArr];
+  const answer  = document.getElementById('p-answer');
+  answer.innerHTML = '<h4>✏️ Your Answer — drop here in order</h4>';
+  correct.forEach(line => {
+    const item = makeItem(line);
+    item.classList.add('correct');
+    answer.appendChild(item);
+  });
+  document.getElementById('p-bank').querySelectorAll('.parsons-item').forEach(i => i.remove());
+  const fb = document.getElementById('p-feedback');
+  fb.textContent = '💡 Solution revealed. Study the order, then press Reset to try again!';
+  fb.className   = 'parsons-feedback show pass';
+  document.getElementById('p-progress-wrap').style.display = 'block';
+  setTimeout(() => { document.getElementById('p-progress-bar').style.width = '100%'; }, 50);
+}
+
+// ═══════════════════════════════════ QUIZ
+const quizBank = [
+  {
+    q: "A linear search is looking for the value <strong>15</strong> in the array {8, 3, 15, 22, 6}. How many elements are checked before the search stops?",
+    opts: ["1 element", "2 elements", "3 elements", "5 elements — the whole array"],
+    ans: 2,
+    exp: "The search checks index 0 (value 8) — no match. Then index 1 (value 3) — no match. Then index 2 (value 15) — match found! The search stops immediately. That is 3 elements checked in total."
+  },
+  {
+    q: "A linear search is looking for the value <strong>99</strong> in the array {8, 3, 15, 22, 6}. How many elements are checked?",
+    opts: ["1 element", "3 elements", "4 elements", "5 elements — the whole array"],
+    ans: 3,
+    exp: "Because 99 does not appear anywhere in the array, the search must check every single element before it can be certain the value is not there. All 5 elements are checked."
+  },
+  {
+    q: "In IGCSE Cambridge pseudocode, why is a WHILE loop used (with a <code>found</code> flag) for a Find First search, rather than a FOR loop?",
+    opts: [
+      "WHILE loops always run faster than FOR loops",
+      "Cambridge pseudocode does not have FOR loops",
+      "Cambridge pseudocode has no BREAK statement, so a WHILE condition that includes <code>found = FALSE</code> is the way to exit the loop early when a match is found",
+      "A found flag can only be declared inside a WHILE loop"
+    ],
+    ans: 2,
+    exp: "Cambridge pseudocode has no BREAK statement to jump out of a loop early. Instead, the WHILE condition is written as <code>i &lt; length AND found = FALSE</code>. Once found becomes TRUE, the condition fails and the loop stops automatically."
+  },
+  {
+    q: "A Count All search uses a FOR loop instead of a WHILE loop. What is the main reason for this choice?",
+    opts: [
+      "FOR loops can compare strings; WHILE loops cannot",
+      "A Count All search must visit every element to count all matches — it cannot stop early, so a FOR loop that iterates through every index is ideal",
+      "FOR loops run faster when counting",
+      "Cambridge pseudocode requires FOR loops for any counting task"
+    ],
+    ans: 1,
+    exp: "A Count All search cannot stop early because there might be more matches further on in the array. A FOR loop is ideal because we know in advance how many times to loop — once for each element."
+  },
+  {
+    q: "At the end of a Find First search, <code>position</code> still has the value <strong>−1</strong>. What does this tell you?",
+    opts: [
+      "The target value is stored at index 1",
+      "The array has only one element",
+      "The target value was not found anywhere in the array",
+      "The search did not run correctly"
+    ],
+    ans: 2,
+    exp: "−1 is used as a special 'not found' value because valid array indices are always 0 or greater. If position is still −1 after the search, it means the loop ended without ever finding a match."
+  },
+  {
+    q: "When searching a 2D array and finding a match, what information must you record?",
+    opts: [
+      "Just the row number — that is enough to find the element",
+      "Just the column number",
+      "Both the row index and the column index",
+      "The value that was found, and how many elements were checked"
+    ],
+    ans: 2,
+    exp: "A 2D array is a grid. To identify a specific cell you need both the row and the column. If you only know the row, you still don't know which column the value is in."
+  },
+  {
+    q: "In a 2D pseudocode search with nested FOR loops, the IF condition is written as: <code>IF grid[row, col] = target AND found = FALSE</code>. What is the purpose of <code>AND found = FALSE</code>?",
+    opts: [
+      "It makes the search faster by skipping rows that have already been checked",
+      "It stops the result being overwritten if further matches appear later in the grid",
+      "It is required syntax — all IF conditions must end with AND found = FALSE",
+      "It checks that the array has been properly declared"
+    ],
+    ans: 1,
+    exp: "Once found becomes TRUE, the whole condition <code>grid[row, col] = target AND found = FALSE</code> can never be true again. This means the row and column of the first match are safely stored and are never changed by later loop iterations."
+  },
+  {
+    q: "Look at this pseudocode condition: <code>WHILE i &lt; 6 AND found = FALSE DO</code>. Under what two conditions will the loop stop running?",
+    opts: [
+      "When i reaches 6, or when found becomes FALSE",
+      "Only when i reaches 6",
+      "When i reaches 6, or when found becomes TRUE",
+      "Only when found becomes TRUE"
+    ],
+    ans: 2,
+    exp: "The WHILE loop continues only while BOTH parts are true: i must be less than 6, AND found must still be FALSE. If either fails — i reaches 6 (array exhausted) OR found becomes TRUE (match found) — the loop stops."
+  },
+  {
+    q: "The array {3, 7, 3, 9, 3} is searched using a Count All linear search with target = 3. What is the final value of <code>count</code>?",
+    opts: ["1", "2", "3", "5"],
+    ans: 2,
+    exp: "The value 3 appears at index 0, index 2, and index 4. Each time a match is found, count increases by 1. After all 5 elements are checked, count = 3."
+  },
+  {
+    q: "Which of these is the correct way to declare a 1D integer array with 5 elements in Cambridge IGCSE pseudocode?",
+    opts: [
+      "DECLARE arr : ARRAY[1:5] OF INTEGER",
+      "DECLARE arr : ARRAY[0:4] OF INTEGER",
+      "arr = ARRAY[5] OF INTEGER",
+      "INTEGER arr[0:4]"
+    ],
+    ans: 1,
+    exp: "Cambridge pseudocode uses the syntax <code>DECLARE identifier : ARRAY[lower:upper] OF DataType</code>. Arrays are zero-indexed, so a 5-element array uses bounds 0 to 4, giving <code>ARRAY[0:4]</code>."
+  }
+];
+
+let activeQs = [];
+
+function buildQuiz() {
+  const pool = shuffle([...quizBank]).slice(0, 3);
+  activeQs   = pool;
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  document.getElementById('quizScore').style.display = 'none';
+
+  pool.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+
+    const qHead = document.createElement('div');
+    qHead.className = 'quiz-q';
+    qHead.innerHTML = `<span class="quiz-q-num">${qi+1}</span>${q.q}`;
+    card.appendChild(qHead);
+
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'quiz-opts';
+    q.opts.forEach((opt, oi) => {
+      const lbl = document.createElement('label');
+      lbl.className = 'quiz-opt';
+      lbl.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"><span>${opt}</span>`;
+      optsDiv.appendChild(lbl);
+    });
+    card.appendChild(optsDiv);
+
+    const fb = document.createElement('div');
+    fb.className = 'quiz-explanation';
+    fb.id = 'qfb-' + qi;
+    card.appendChild(fb);
+
+    container.appendChild(card);
+  });
+}
+
+function submitQuiz() {
+  let score = 0;
+  activeQs.forEach((q, qi) => {
+    const selected = document.querySelector(`input[name="q${qi}"]:checked`);
+    const opts     = document.querySelectorAll(`#quizContainer .quiz-card:nth-child(${qi+1}) .quiz-opt`);
+    const fb       = document.getElementById('qfb-' + qi);
+
+    document.querySelectorAll(`input[name="q${qi}"]`).forEach(r => r.disabled = true);
+    opts.forEach((opt, oi) => {
+      if (oi === q.ans) opt.classList.add('opt-correct');
+      if (selected && parseInt(selected.value) === oi && oi !== q.ans) opt.classList.add('opt-wrong');
+    });
+
+    if (selected && parseInt(selected.value) === q.ans) {
+      score++;
+      fb.innerHTML   = `✅ <strong>Correct!</strong> ${q.exp}`;
+      fb.className   = 'quiz-explanation show correct';
+    } else if (selected) {
+      fb.innerHTML   = `❌ <strong>Not quite.</strong> ${q.exp}`;
+      fb.className   = 'quiz-explanation show incorrect';
+    } else {
+      fb.innerHTML   = `⚠️ <strong>Not answered.</strong> ${q.exp}`;
+      fb.className   = 'quiz-explanation show incorrect';
+    }
+  });
+
+  const el = document.getElementById('quizScore');
+  el.style.display = 'block';
+  el.style.color   = score === 3 ? 'var(--green)' : score === 2 ? 'var(--amber-dark)' : 'var(--red)';
+  el.textContent   = `Score: ${score} / 3`;
+}
+
+// ═══════════════════════════════════ INIT
+renderCode();
+animInit();
+buildParsons();
+buildQuiz();
+</script>
+</body>
+</html>
